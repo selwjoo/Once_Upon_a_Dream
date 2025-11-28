@@ -96,7 +96,7 @@ public class GameManager_game2 : MonoBehaviour
                 if (GameTimer >= targetTime)
                 {
                     Instantiate(RhythmTileObject, new Vector3(-3.36f, TileStart, 0), Quaternion.identity);
-                    Instantiate(RhythmTileObject, new Vector3(2.1747f, TileStart, 0), Quaternion.identity);
+                    Instantiate(RhythmTileObject, new Vector3(3.36f, TileStart, 0), Quaternion.identity);
                     RhytmTimes.RemoveAt(i);
                 }
             }

@@ -105,6 +105,7 @@ public class GameManager_game1 : MonoBehaviour
             players[i].isMyTurn = false;
 
             players[i].transform.position = firstPosition[i];
+            players[i].GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 0);
         }
         isGameStart = false;
 

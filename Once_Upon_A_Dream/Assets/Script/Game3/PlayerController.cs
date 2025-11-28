@@ -8,9 +8,12 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f;
     private Rigidbody2D rb;
 
+    Animator ani;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        ani = GetComponent<Animator>();
     }
 
     void FixedUpdate()
@@ -22,6 +25,9 @@ public class PlayerController : MonoBehaviour
 
         Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + move);
+
+        ani.SetFloat("DirX", h);
+        ani.SetFloat("DirY", v);
 
         // 위치 서버에 보내기
         //NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);

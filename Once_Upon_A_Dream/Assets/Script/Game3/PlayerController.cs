@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
         rb.MovePosition(rb.position + move);
 
         // 위치 서버에 보내기
-        //NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
+        NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
     }
 
 

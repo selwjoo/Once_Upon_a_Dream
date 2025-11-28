@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Data;
+using static UnityEngine.Rendering.DebugUI;
 
 public class RoleManager : MonoBehaviour
 {
@@ -18,8 +20,12 @@ public class RoleManager : MonoBehaviour
             chosenRole = role
         };
 
+        GameManager.Instance.chosenRole = role;
+
         StartCoroutine(SendRoleRequest(req));
     }
+
+
 
     IEnumerator SendRoleRequest(RoleRequest req)
     {
@@ -54,8 +60,16 @@ public class RoleManager : MonoBehaviour
                     NetworkManager.I.otherPlayer = roleAPlayer.gameObject;
                 }
 
-
                 yield return new WaitForSeconds(1f);
+
+                if (res.both_selected)
+                {
+                    SceneManager.LoadScene("Game3");
+                }
+                else
+                {
+                    Debug.Log("¾¾»¡~!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                }
             }
             else
             {
@@ -83,4 +97,5 @@ public class RoleResponse
     public bool success;
     public string role;
     public string message;
+    public bool both_selected;
 }

@@ -5,6 +5,7 @@ public class OtherPlayer : MonoBehaviour
     public void SetPosition(float x, float y)
     {
         transform.position = new Vector2(x, y);
+        Debug.Log("이거 사용되는거 맞냐");
     }
 
     public void SetRole(string role)

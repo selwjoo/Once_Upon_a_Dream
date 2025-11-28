@@ -1,24 +1,41 @@
-using UnityEngine;
+ï»¿using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public string username;   // ë‚´ ë‹‰ë„¤ì„
+    public string roomId;     // ë°© ë²ˆí˜¸
+    public string chosenRole; // ë‚´ê°€ ì„ íƒí•œ ì—­í• 
 
-    public string username;
-    public string roomId;
-    public string chosenRole;
+    // ëˆ„ê°€ ì–´ë–¤ ì—­í• ì¸ì§€ ì €ì¥
+    public Dictionary<string, string> playerRoles = new Dictionary<string, string>();
 
     void Awake()
     {
-        // ½Ì±ÛÅæ Ã³¸®
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);  // ¡ç ¾À º¯°æÇØµµ »èÁ¦µÇÁö ¾ÊÀ½
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
     }
+
+    // ì—­í•  ì •ë³´ ì—…ë°ì´íŠ¸
+    public void SetPlayerRole(string username, string role)
+    {
+        if (playerRoles.ContainsKey(username))
+            playerRoles[username] = role;
+        else
+            playerRoles.Add(username, role);
+
+        Debug.Log($"[ì—­í•  ì„¤ì •] {username} -> {role}");
+
+    }
+
+
 }

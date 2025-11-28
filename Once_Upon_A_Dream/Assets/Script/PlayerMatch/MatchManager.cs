@@ -45,7 +45,7 @@ public class MatchManager : MonoBehaviour
                     GameManager.Instance.roomId = res.room;
 
                     yield return new WaitForSeconds(3f);
-                    SceneManager.LoadScene("Game3");
+                    SceneManager.LoadScene("Loading");
                 }
                 else
                 {

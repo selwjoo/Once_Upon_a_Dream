@@ -140,11 +140,22 @@ def get_role(request):
             return JsonResponse({"success": False, "message": "방이 존재하지 않습니다."})
 
         room = rooms[room_id]
-        role = room["roles"].get(username, None)  # 없으면 None 반환
+
+        my_role = room["roles"].get(username, None)
+
+        # 상대 유저 역할 찾아서 보내줌
+        other_role = None
+        for user, role in room["roles"].items():
+            if user != username:
+                other_role = role
+                break
 
         return JsonResponse({
-            "success": True if role else False,
-            "role": role
+            "success": True,
+            "role": my_role,
+            "otherRole": other_role,
+            "both_selected": room["both_selected"]
         })
 
     return JsonResponse({"success": False, "message": "POST 요청만 허용"}, status=400)
+

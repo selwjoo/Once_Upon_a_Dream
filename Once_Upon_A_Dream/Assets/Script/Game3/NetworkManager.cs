@@ -12,6 +12,7 @@ public class NetworkManager : MonoBehaviour
     // 상대 플레이어 추적
     public string otherPlayerName;
     public GameObject otherPlayer;
+    public GameObject myPlayer;
 
     // 위치 전송 주기 (초당 20회)
     private float sendInterval = 0.05f;
@@ -208,16 +209,12 @@ public class NetworkManager : MonoBehaviour
 
     void SendMyPosition()
     {
-        if (ws == null || ws.ReadyState != WebSocketState.Open)
+        if (ws == null || ws.ReadyState != WebSocketState.Open || myPlayer == null)
             return;
 
-        // 내 캐릭터 찾기 (예: Tag 사용)
-        GameObject myPlayer = GameObject.FindGameObjectWithTag("Player");
 
-        if (myPlayer != null && myPlayer.name == GameManager.Instance.username)
-        {
-            SendMove(GameManager.Instance.username, myPlayer.transform.position);
-        }
+        SendMove(GameManager.Instance.username, myPlayer.transform.position);
+        
     }
 
     public void SendRole(string username, string role)

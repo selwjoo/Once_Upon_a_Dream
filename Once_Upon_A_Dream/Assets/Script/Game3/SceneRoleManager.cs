@@ -4,32 +4,49 @@ using System.Collections;
 
 public class SceneRoleManager : MonoBehaviour
 {
-    public string myRole;
     public GameObject roleAPrefab;
     public GameObject roleBPrefab;
 
+    private GameObject myChar;
+    private GameObject otherChar;
+    public string myRole;
+    public string otherRole;
+
     IEnumerator Start()
     {
-        yield return GetMyRoleFromServer();
+        // 서버에서 역할 정보 가져오기
+        yield return GetRolesFromServer();
 
+        // 캐릭터 Instantiate
         if (myRole == "RoleA")
-            Instantiate(roleAPrefab);
-        else if (myRole == "RoleB")
-            Instantiate(roleBPrefab);
+        {
+            myChar = Instantiate(roleAPrefab);
+            otherChar = Instantiate(roleBPrefab);
+        }
         else
-            Debug.LogError("역할 정보를 서버에서 가져오지 못함!");
+        {
+            myChar = Instantiate(roleBPrefab);
+            otherChar = Instantiate(roleAPrefab);
+        }
+
+        // 내 캐릭터 이동 가능 설정
+        myChar.GetComponent<PlayerController>().isMyTurn = true;
+        otherChar.GetComponent<PlayerController>().isMyTurn = false;
+
+        // NetworkManager에 연결
+        NetworkManager.I.myPlayer = myChar;
+        NetworkManager.I.otherPlayer = otherChar;
     }
 
-    IEnumerator GetMyRoleFromServer()
+    IEnumerator GetRolesFromServer()
     {
-        var requestData = new PlayerRoleRequest
+        GetRoleRequest req = new GetRoleRequest
         {
             username = GameManager.Instance.username,
             room = GameManager.Instance.roomId
         };
 
-        string json = JsonUtility.ToJson(requestData);
-        Debug.Log("요청 JSON: " + json);
+        string json = JsonUtility.ToJson(req);
 
         UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/get_role/", "POST");
         request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
@@ -40,15 +57,17 @@ public class SceneRoleManager : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            RoleResponse res = JsonUtility.FromJson<RoleResponse>(request.downloadHandler.text);
+            GetRoleResponse res = JsonUtility.FromJson<GetRoleResponse>(request.downloadHandler.text);
+
             if (res.success)
             {
-                myRole = res.role;
-                Debug.Log("서버에서 역할 조회 성공: " + myRole);
+                myRole = res.role;        // 서버에서 보내는 이름 그대로
+                otherRole = res.otherRole;
+                Debug.Log("내 역할: " + myRole + ", 상대: " + otherRole);
             }
             else
             {
-                Debug.LogError("서버에서 역할 조회 실패: " + res.role);
+                Debug.LogError("역할 조회 실패");
             }
         }
         else
@@ -56,14 +75,21 @@ public class SceneRoleManager : MonoBehaviour
             Debug.LogError("요청 실패: " + request.error);
         }
     }
+
 }
 
 [System.Serializable]
-public class PlayerRoleRequest
+public class GetRoleRequest
 {
     public string username;
     public string room;
 }
-
-
+[System.Serializable]
+public class GetRoleResponse
+{
+    public bool success;
+    public string role;        // myRole → role
+    public string otherRole;
+    public bool both_selected;
+}
 

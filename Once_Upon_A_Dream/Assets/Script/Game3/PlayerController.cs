@@ -2,11 +2,17 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public string role; // 내 역할(RoleA, RoleB 등)
+    // ===== 기존 변수 =====
+    public string role;           // 1, 2 등 유저 역할 (기존 게임용)
     public bool isMyTurn = false;
-
     public float speed = 5f;
     private Rigidbody2D rb;
+
+    // ===== ChaseGame 전용 변수 =====
+    public enum GameRole { Chaser, Runner }
+    public GameRole gameRole;     // ChaseGame 역할
+    public bool HasWon = false;   // ChaseGame 승리 여부
+    public string playerName;     // "A" or "B"
 
     void Start()
     {
@@ -23,28 +29,43 @@ public class PlayerController : MonoBehaviour
         Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + move);
 
-        // 위치 서버에 보내기
+        // 위치 서버에 보내기 (기존)
         NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
     }
 
 
+    // ==== ChaseGame에서 호출하는 역할 세팅 함수 ====
+    public void SetRole(GameRole newRole)
+    {
+        gameRole = newRole;
+        HasWon = false;
+    }
+
+    public void Win()
+    {
+        HasWon = true;
+    }
+
+
+    // ==== 기존 포인트 게임 충돌 처리 ====
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Game1 씬 이라면
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game1")
         {
-            // 충돌한 오브젝트가 PointStar가 아니면 종료
             if (!collision.CompareTag("PointStar")) return;
-
             if (!GameManager_game1.instance.isGameStart) return;
 
-            // 제거
             Destroy(collision.gameObject);
-            GameManager_game1.instance.PlayerPoint[int.Parse(role) - 1]++; // 포인트 증가
-            
-            
-            
+            GameManager_game1.instance.PlayerPoint[int.Parse(role) - 1]++;
         }
 
+        // ChaseGame - Runner가 Light와 충돌하면 승리
+        else if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "ChaseGame")// 씬 이름을 실제 이름으로 변경하세요
+        {
+            if (gameRole == GameRole.Runner && collision.CompareTag("Light"))
+            {
+                Win();
+            }
+        }
     }
 }

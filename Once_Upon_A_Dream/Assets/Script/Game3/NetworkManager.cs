@@ -114,29 +114,50 @@ public class NetworkManager : MonoBehaviour
         try
         {
             BaseMsg msg = JsonUtility.FromJson<BaseMsg>(json);
-
             switch (msg.type)
             {
                 case "role_select":
                     var roleMsg = JsonUtility.FromJson<RoleMsg>(json);
                     GameManager.Instance.SetPlayerRole(roleMsg.username, roleMsg.role);
-
                     if (roleMsg.username != GameManager.Instance.username)
                     {
                         otherPlayerName = roleMsg.username;
                         Debug.Log($"[역할 선택] 상대방: {otherPlayerName}, 역할: {roleMsg.role}");
                         FindOtherPlayer();
                     }
-
                     RemotePlayerManager.I.OnRole(json);
                     break;
-
                 case "move":
                     OnMove(json);
                     break;
-
                 case "anim":
                     RemotePlayerManager.I.OnAnim(json);
+                    break;
+                case "score_update":
+                    var scoreMsg = JsonUtility.FromJson<ScoreUpdateMsg>(json);
+                    if (ScoreUI.I != null)
+                    {
+                        ScoreUI.I.OnReceiveScoreUpdate(scoreMsg.scoreA, scoreMsg.scoreB);
+                    }
+                    break;
+                case "role_update":
+                    var roleUpdateMsg = JsonUtility.FromJson<RoleUpdateMsg>(json);
+                    if (ScoreUI.I != null)
+                    {
+                        ScoreUI.I.OnReceiveRoleUpdate(roleUpdateMsg.playerA, roleUpdateMsg.playerB);
+                    }
+                    break;
+                case "timer_update":
+                    var timerMsg = JsonUtility.FromJson<TimerUpdateMsg>(json);
+                    if (ScoreUI.I != null)
+                    {
+                        ScoreUI.I.OnReceiveTimerUpdate(timerMsg.time);
+                    }
+                    break;
+                case "chase_roles":
+                    var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
+                    FindAnyObjectByType<ChaseGame>()?.ApplyRoles(chaseRolesMsg.playerAIsChaser, isLocal: false);
+                    Debug.Log($"역할 수신 - PlayerA Chaser: {chaseRolesMsg.playerAIsChaser}");
                     break;
             }
         }
@@ -249,6 +270,34 @@ public class NetworkManager : MonoBehaviour
         ws.Send(JsonUtility.ToJson(msg));
     }
 
+    public void SendScoreUpdate(int scoreA, int scoreB)
+    {
+        string json = JsonUtility.ToJson(new { type = "score_update", scoreA = scoreA, scoreB = scoreB });
+        ws.Send(json);
+    }
+
+    public void SendRoleUpdate(string playerA, string playerB)
+    {
+        string json = JsonUtility.ToJson(new { type = "role_update", playerA = playerA, playerB = playerB });
+        ws.Send(json);
+    }
+
+    public void SendTimerUpdate(float time)
+    {
+        string json = JsonUtility.ToJson(new { type = "timer_update", time = time });
+        ws.Send(json);
+    }
+    public void SendChaseRoles(bool playerAIsChaser)
+    {
+        ChaseRolesMsg msg = new ChaseRolesMsg
+        {
+            playerAIsChaser = playerAIsChaser
+        };
+        string json = JsonUtility.ToJson(msg);
+        ws.Send(json);
+        Debug.Log($"역할 전송 - PlayerA Chaser: {playerAIsChaser}");
+    }
+
     void OnDestroy()
     {
         if (ws != null)
@@ -282,3 +331,37 @@ public class AnimMsg : BaseMsg
     public string username;
     public string animState;
 }
+
+// 메시지 클래스들
+[System.Serializable]
+public class ScoreUpdateMsg
+{
+    public string type = "score_update";
+    public int scoreA;
+    public int scoreB;
+}
+
+[System.Serializable]
+public class RoleUpdateMsg
+{
+    public string type = "role_update";
+    public string playerA;
+    public string playerB;
+}
+
+[System.Serializable]
+public class TimerUpdateMsg
+{
+    public string type = "timer_update";
+    public float time;
+}
+
+[System.Serializable]
+public class ChaseRolesMsg
+{
+    public string type = "chase_roles";
+    public bool playerAIsChaser;
+}
+
+
+

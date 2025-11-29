@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class SceneRoleManager : MonoBehaviour
 {
@@ -29,9 +30,39 @@ public class SceneRoleManager : MonoBehaviour
             otherChar = Instantiate(roleAPrefab);
         }
 
-        // 내 캐릭터 이동 가능 설정
-        myChar.GetComponent<PlayerController>().isMyTurn = true;
-        otherChar.GetComponent<PlayerController>().isMyTurn = false;
+        // PlayerController 참조
+        PlayerController myCtrl = myChar.GetComponent<PlayerController>();
+        PlayerController otherCtrl = otherChar.GetComponent<PlayerController>();
+
+
+        // 씬이 Game3이면 ChaseGame에 할당
+        if (SceneManager.GetActiveScene().name == "Game3")
+        {
+            var chaseGame = FindAnyObjectByType<ChaseGame>();
+            if (chaseGame != null)
+            {
+                // role 값으로 A와 B 구분해서 전달
+                PlayerController playerA, playerB;
+
+                if (myCtrl.role == "RoleA")
+                {
+                    playerA = myCtrl;
+                    playerB = otherCtrl;
+                }
+                else
+                {
+                    playerA = otherCtrl;
+                    playerB = myCtrl;
+                }
+
+                Debug.Log($"ChaseGame 플레이어 할당 - A: {playerA.playerName} (role: {playerA.role}), B: {playerB.playerName} (role: {playerB.role})");
+                chaseGame.SetPlayers(playerA, playerB);
+            }
+        }
+
+        // 이동 가능 설정
+        myCtrl.isMyTurn = true;
+        otherCtrl.isMyTurn = false;
 
         // NetworkManager에 연결
         NetworkManager.I.myPlayer = myChar;

@@ -49,8 +49,8 @@ public class GameManager : MonoBehaviour
     // winnerName이 null이면 무승부
     public void OnGameModeFinished(string winnerName)
     {
-        if (winnerName == "A") scoreA++;
-        else if (winnerName == "B") scoreB++;
+        if (winnerName == "RoleA") scoreA++;
+        else if (winnerName == "RoleB") scoreB++;
 
         // UI 갱신 요청
         ScoreUI.I.UpdateScoreUI();

@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     public enum GameRole { Chaser, Runner }
     public GameRole gameRole;     // ChaseGame 역할
     public bool HasWon = false;   // ChaseGame 승리 여부
-    public string playerName;     // "A" or "B"
+
 
     void Start()
     {
@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // ChaseGame - Runner가 Light와 충돌하면 승리
-        else if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "ChaseGame")// 씬 이름을 실제 이름으로 변경하세요
+        else if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
         {
             if (gameRole == GameRole.Runner && collision.CompareTag("Light"))
             {

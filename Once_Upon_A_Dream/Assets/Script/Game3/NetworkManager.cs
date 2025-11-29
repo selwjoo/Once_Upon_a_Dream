@@ -42,7 +42,7 @@ public class NetworkManager : MonoBehaviour
             string data = e.Data;
             EnqueueMainThread(() =>
             {
-                Debug.Log($"메시지 수신: {data}");
+                //Debug.Log($"메시지 수신: {data}");
                 OnMessage(data);
             });
         };
@@ -156,7 +156,6 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case "chase_roles":
                     var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
-                    FindAnyObjectByType<ChaseGame>()?.ApplyRoles(chaseRolesMsg.playerAIsChaser, isLocal: false);
                     Debug.Log($"역할 수신 - PlayerA Chaser: {chaseRolesMsg.playerAIsChaser}");
                     break;
             }
@@ -177,7 +176,7 @@ public class NetworkManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[위치 수신] {msg.username} -> ({msg.x:F2}, {msg.y:F2})");
+        //Debug.Log($"[위치 수신] {msg.username} -> ({msg.x:F2}, {msg.y:F2})");
 
         // otherPlayer 찾기
         if (otherPlayer == null && !string.IsNullOrEmpty(otherPlayerName))
@@ -189,7 +188,7 @@ public class NetworkManager : MonoBehaviour
         {
             // ★ 이제 메인 스레드에서 실행되므로 안전 ★
             otherPlayer.transform.position = new Vector2(msg.x, msg.y);
-            Debug.Log($"상대방 위치 업데이트 완료: {otherPlayer.transform.position}");
+            //Debug.Log($"상대방 위치 업데이트 완료: {otherPlayer.transform.position}");
         }
         else
         {

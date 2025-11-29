@@ -28,9 +28,6 @@ public class ChaseGame : MonoBehaviour
 
         StartCoroutine(WaitForPlayerAAndAssignRoles());
 
-        StartCoroutine(GameLoop());
-        
-
     }
 
     private IEnumerator WaitForPlayerAAndAssignRoles()
@@ -50,7 +47,8 @@ public class ChaseGame : MonoBehaviour
         // 로컬 적용 (playerA는 즉시 적용)
         ApplyRoles(playerAIsChaser, isLocal: true);
 
-        Debug.Log("Roles assigned after waiting for playerAController.");
+        gameLoop = StartCoroutine(GameLoop());
+
     }
 
 
@@ -59,20 +57,21 @@ public class ChaseGame : MonoBehaviour
     {
         if (isLocal)
         {
-            // 로컬 playerA만 즉시 적용
+            // playerA (호스트)에서 둘 다 설정
             playerAController.SetRole(playerAIsChaser ? PlayerController.GameRole.Chaser : PlayerController.GameRole.Runner);
+            playerBController.SetRole(playerAIsChaser ? PlayerController.GameRole.Runner : PlayerController.GameRole.Chaser);
+
+            Debug.Log($"[로컬] playerA 역할: {playerAController.gameRole}");
+            Debug.Log($"[로컬] playerB 역할: {playerBController.gameRole}");
         }
+        // else 블록 삭제! playerB에서는 아무것도 안 함
 
-        // playerB는 항상 playerA 반대 역할
-        playerBController.SetRole(playerAIsChaser ? PlayerController.GameRole.Runner : PlayerController.GameRole.Chaser);
-
-        Debug.Log($"역할 배정 - PlayerA({playerAController.playerName}): {playerAController.gameRole}, PlayerB({playerBController.playerName}): {playerBController.gameRole}");
-
+        // UI 업데이트
         if (ui != null)
         {
             ui.UpdateRoles(
-                playerAController.playerName + "는 " + playerAController.gameRole.ToString(),
-                playerBController.playerName + "는 " + playerBController.gameRole.ToString()
+                playerAController.role + "는 " + playerAController.gameRole.ToString(),
+                playerBController.role + "는 " + playerBController.gameRole.ToString()
             );
         }
     }
@@ -92,12 +91,12 @@ public class ChaseGame : MonoBehaviour
 
             if (playerAController.HasWon)
             {
-                FinishRound(playerAController.playerName);
+                FinishRound(playerAController.role);
                 yield break;
             }
             if (playerBController.HasWon)
             {
-                FinishRound(playerBController.playerName);
+                FinishRound(playerBController.role);
                 yield break;
             }
             yield return null;
@@ -108,6 +107,7 @@ public class ChaseGame : MonoBehaviour
     void FinishRound(string winnerName)
     {
         blackout?.StopBlackouts();
+        Debug.Log("이겨서 나옴");
         GameManager.Instance.OnGameModeFinished(winnerName);
         if (gameLoop != null)
         {

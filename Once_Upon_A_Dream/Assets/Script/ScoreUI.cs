@@ -22,12 +22,16 @@ public class ScoreUI : MonoBehaviour
 
     public void UpdateScoreUI()
     {
+
         // A 점수 갱신
         for (int i = 0; i < 3; i++)
         {
-            // 먼저 슬롯 안 회색 오브젝트 제거
-            foreach (Transform child in slotsA[i].transform)
-                Destroy(child.gameObject);
+
+            // 슬롯 안 오브젝트 즉시 제거
+            while (slotsA[i].transform.childCount > 0)
+            {
+                DestroyImmediate(slotsA[i].transform.GetChild(0).gameObject);
+            }
 
             // 점수만큼 승리 프리팹 생성
             if (i < GameManager.Instance.scoreA)
@@ -39,9 +43,11 @@ public class ScoreUI : MonoBehaviour
         // B 점수 갱신
         for (int i = 0; i < 3; i++)
         {
-            // 먼저 슬롯 안 회색 오브젝트 제거
-            foreach (Transform child in slotsB[i].transform)
-                Destroy(child.gameObject);
+            // 슬롯 안 오브젝트 즉시 제거
+            while (slotsB[i].transform.childCount > 0)
+            {
+                DestroyImmediate(slotsB[i].transform.GetChild(0).gameObject);
+            }
 
             // 점수만큼 승리 프리팹 생성
             if (i < GameManager.Instance.scoreB)
@@ -54,6 +60,7 @@ public class ScoreUI : MonoBehaviour
     public void UpdateRoles(string playerA, string playerB)
     {
         // 플레이어 화면에다가 당신은 ... 입니다. 띄어ㅜ
+         
     }
 
     // t: 시간(초)
@@ -76,34 +83,10 @@ public class ScoreUI : MonoBehaviour
     {
         GameManager.Instance.scoreA = scoreA;
         GameManager.Instance.scoreB = scoreB;
-        UpdateScoreUILocal(); // 네트워크로 다시 보내지 않고 로컬만 업데이트
+
+        UpdateScoreUI();
     }
 
-    // 로컬 UI만 업데이트 (네트워크 전송 없음)
-    void UpdateScoreUILocal()
-    {
-        // A 점수 갱신
-        for (int i = 0; i < 3; i++)
-        {
-            foreach (Transform child in slotsA[i].transform)
-                Destroy(child.gameObject);
-            if (i < GameManager.Instance.scoreA)
-            {
-                Instantiate(winAPrefab, slotsA[i].transform);
-            }
-        }
-
-        // B 점수 갱신
-        for (int i = 0; i < 3; i++)
-        {
-            foreach (Transform child in slotsB[i].transform)
-                Destroy(child.gameObject);
-            if (i < GameManager.Instance.scoreB)
-            {
-                Instantiate(winBPrefab, slotsB[i].transform);
-            }
-        }
-    }
 
     // 서버로부터 받은 역할 업데이트
     public void OnReceiveRoleUpdate(string playerA, string playerB)

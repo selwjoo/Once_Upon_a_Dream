@@ -55,7 +55,7 @@ public class SceneRoleManager : MonoBehaviour
                     playerB = myCtrl;
                 }
 
-                Debug.Log($"ChaseGame 플레이어 할당 - A: {playerA.playerName} (role: {playerA.role}), B: {playerB.playerName} (role: {playerB.role})");
+                
                 chaseGame.SetPlayers(playerA, playerB);
             }
         }

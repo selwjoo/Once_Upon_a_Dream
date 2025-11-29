@@ -8,19 +8,14 @@ public class BlackOut : MonoBehaviour
     public float blackoutDuration = 1.5f;
 
 
-    private Coroutine blackCoroutine;
-
-
     public void StartBlackouts()
     {
-        if (blackCoroutine != null) StopCoroutine(blackCoroutine);
-        blackCoroutine = StartCoroutine(BlackoutLoop());
+        StartCoroutine(BlackoutLoop());
     }
 
 
     public void StopBlackouts()
     {
-        if (blackCoroutine != null) StopCoroutine(blackCoroutine);
         SetBlackout(false);
     }
 

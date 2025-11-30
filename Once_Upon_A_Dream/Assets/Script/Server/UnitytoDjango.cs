@@ -6,8 +6,8 @@ public class UnitytoDjango : MonoBehaviour
 {
     IEnumerator SendDataToDjango()
     {
-        string url = "http://127.0.0.1:8000/unity/data/";
-        string json = "{\"player\":\"누나\", \"score\":100}";
+        string url = "http://192.168.0.5:8000/unity/data/";
+        string json = "{\"player\":\"시우\", \"score\":100}";
         UnityWebRequest request = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);

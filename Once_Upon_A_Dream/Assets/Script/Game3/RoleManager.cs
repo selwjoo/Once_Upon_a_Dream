@@ -28,7 +28,7 @@ public class RoleManager : MonoBehaviour
     IEnumerator SendRoleRequest(RoleRequest req)
     {
         string json = JsonUtility.ToJson(req);
-        UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/choose_role/", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://192.168.0.5:8000/unity/choose_role/", "POST");
         request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
@@ -62,7 +62,7 @@ public class RoleManager : MonoBehaviour
 
                 if (res.both_selected)
                 {
-                    SceneManager.LoadScene("Game3");
+                    SceneManager.LoadScene("Game1");
                 }
                 else
                 {
@@ -96,7 +96,7 @@ public class RoleManager : MonoBehaviour
 
             string json = JsonUtility.ToJson(req);
 
-            UnityWebRequest www = new UnityWebRequest("http://127.0.0.1:8000/unity/get_role/", "POST");
+            UnityWebRequest www = new UnityWebRequest("http://192.168.0.5:8000/unity/get_role/", "POST");
             www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
             www.downloadHandler = new DownloadHandlerBuffer();
             www.SetRequestHeader("Content-Type", "application/json");
@@ -108,7 +108,7 @@ public class RoleManager : MonoBehaviour
             if (res.both_selected)
             {
                 Debug.Log("두 명 다 선택 완료됨!");
-                SceneManager.LoadScene("Game3");
+                SceneManager.LoadScene("Game1");
                 yield break; // 폴링 종료
             }
         }

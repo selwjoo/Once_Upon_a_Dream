@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public string roomId;     // 방 번호
     public string chosenRole; // 내가 선택한 역할
 
+
     public int scoreA = 0; // Player A
     public int scoreB = 0; // Player B
 
@@ -51,6 +52,11 @@ public class GameManager : MonoBehaviour
     {
         if (winnerName == "RoleA") scoreA++;
         else if (winnerName == "RoleB") scoreB++;
+        else if(winnerName == null)
+        {
+            scoreA++;
+            scoreB++;
+        }
 
         // UI 갱신 요청
         ScoreUI.I.UpdateScoreUI();

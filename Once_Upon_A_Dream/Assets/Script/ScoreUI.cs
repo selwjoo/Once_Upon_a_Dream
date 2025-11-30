@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ScoreUI : MonoBehaviour
@@ -19,6 +20,7 @@ public class ScoreUI : MonoBehaviour
     void Awake()
     {
         I = this;
+        UpdateScoreUI();
     }
 
     // 서버로부터 받은 점수 업데이트
@@ -70,6 +72,9 @@ public class ScoreUI : MonoBehaviour
             }
         }
 
+        
+
+        
 
     }
 
@@ -106,18 +111,30 @@ public class ScoreUI : MonoBehaviour
 
         if (myRole == "RoleA")
         {
-            string myChaseRole = playerAIsChaser ? "Runner" : "Chaser";
-            StartCoroutine(ShowMyRole(roleTextA, myChaseRole));
+            if (playerAIsChaser)
+            {
+                StartCoroutine(ShowMyRole(roleTextB)); //Chaser
+            }
+            else
+            {
+                StartCoroutine(ShowMyRole(roleTextA)); //Ruuner
+            }
         }
         // PlayerB라면
         else if (myRole == "RoleB")
         {
-            string myChaseRole = playerAIsChaser ? "Chaser" : "Runner";
-            StartCoroutine(ShowMyRole(roleTextB, myChaseRole));
+            if (playerAIsChaser)
+            {
+                StartCoroutine(ShowMyRole(roleTextA)); //Runner
+            }
+            else
+            {
+                StartCoroutine(ShowMyRole(roleTextB)); //Chaser
+            }
         }
     }
 
-    System.Collections.IEnumerator ShowMyRole(Text roleText, string role)
+    System.Collections.IEnumerator ShowMyRole(Text roleText)
     {
         if (roleText == null) yield break;
 
@@ -126,6 +143,27 @@ public class ScoreUI : MonoBehaviour
         yield return new WaitForSeconds(3f);
 
         roleText.gameObject.SetActive(false);
+    }
+
+    public System.Collections.IEnumerator SceneGO()
+    {
+
+        yield return new WaitForSeconds(2f);
+        // 이겼다고 나와야행
+
+        if (SceneManager.GetActiveScene().name == "Game1")
+        {
+            SceneManager.LoadScene("Game2");
+        }
+        else if (SceneManager.GetActiveScene().name == "Game2")
+        {
+            SceneManager.LoadScene("Game3");
+        }
+        else if (SceneManager.GetActiveScene().name == "Game3")
+        {
+            SceneManager.LoadScene("Story2"); 
+        }
+        
     }
 
 

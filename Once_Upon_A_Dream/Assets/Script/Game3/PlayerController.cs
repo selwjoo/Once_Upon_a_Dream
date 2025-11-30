@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
             minX = -8f;
             maxX = 8f;
             minY = -4.5f;
-            maxY = 2.8f;
+            maxY = 4.5f;
         }
         ani = GetComponent<Animator>();
     }
@@ -92,10 +92,19 @@ public class PlayerController : MonoBehaviour
             if (!GameManager_game1.instance.isGameStart) return;
 
             Destroy(collision.gameObject);
-            GameManager_game1.instance.PlayerPoint[int.Parse(role) - 1]++;
+
+            int roleIndex = role switch
+            {
+                "RoleA" => 0,
+                "RoleB" => 1,
+                _ => -1
+            };
+
+            if (roleIndex >= 0)
+                GameManager_game1.instance.AddPoint(roleIndex);
+
         }
 
-        // ChaseGame - Runner가 Light와 충돌하면 승리
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
         {
             if (gameRole == GameRole.Runner && collision.CompareTag("Light"))

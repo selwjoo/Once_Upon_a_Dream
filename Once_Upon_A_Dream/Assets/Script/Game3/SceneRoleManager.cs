@@ -59,6 +59,24 @@ public class SceneRoleManager : MonoBehaviour
                 chaseGame.SetPlayers(playerA, playerB);
             }
         }
+        else if(SceneManager.GetActiveScene().name == "Game1")
+        {
+            // role 값으로 A와 B 구분해서 전달
+            PlayerController playerA, playerB;
+
+            if (myCtrl.role == "RoleA")
+            {
+                playerA = myCtrl;
+                playerB = otherCtrl;
+            }
+            else
+            {
+                playerA = otherCtrl;
+                playerB = myCtrl;
+            }
+
+            GameManager_game1.instance.players = new PlayerController[] { playerA, playerB };
+        }
 
         // 이동 가능 설정
         myCtrl.isMyTurn = true;
@@ -79,7 +97,7 @@ public class SceneRoleManager : MonoBehaviour
 
         string json = JsonUtility.ToJson(req);
 
-        UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/get_role/", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://192.168.0.5:8000/unity/get_role/", "POST");
         request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");

@@ -127,6 +127,8 @@ public class GameManager_game2 : MonoBehaviour
         {
             // ºñ±è
         }
+
+        StartCoroutine(ScoreUI.I.SceneGO());
     }
     
 }

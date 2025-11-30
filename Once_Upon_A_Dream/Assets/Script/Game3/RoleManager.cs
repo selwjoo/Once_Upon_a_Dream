@@ -62,7 +62,7 @@ public class RoleManager : MonoBehaviour
 
                 if (res.both_selected)
                 {
-                    SceneManager.LoadScene("Game3");
+                    SceneManager.LoadScene("Game1");
                 }
                 else
                 {
@@ -108,7 +108,7 @@ public class RoleManager : MonoBehaviour
             if (res.both_selected)
             {
                 Debug.Log("두 명 다 선택 완료됨!");
-                SceneManager.LoadScene("Game3");
+                SceneManager.LoadScene("Game1");
                 yield break; // 폴링 종료
             }
         }

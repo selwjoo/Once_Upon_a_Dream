@@ -59,6 +59,24 @@ public class SceneRoleManager : MonoBehaviour
                 chaseGame.SetPlayers(playerA, playerB);
             }
         }
+        else if(SceneManager.GetActiveScene().name == "Game1")
+        {
+            // role 값으로 A와 B 구분해서 전달
+            PlayerController playerA, playerB;
+
+            if (myCtrl.role == "RoleA")
+            {
+                playerA = myCtrl;
+                playerB = otherCtrl;
+            }
+            else
+            {
+                playerA = otherCtrl;
+                playerB = myCtrl;
+            }
+
+            GameManager_game1.instance.players = new PlayerController[] { playerA, playerB };
+        }
 
         // 이동 가능 설정
         myCtrl.isMyTurn = true;

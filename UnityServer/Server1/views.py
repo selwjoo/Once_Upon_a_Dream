@@ -32,26 +32,29 @@ def unity_login(request):
             # 로그인 성공
             return JsonResponse({"success": True, "message": "로그인 성공"})
         else:
-            return JsonResponse({"error": False, "message": "아이디 또는 비번 틀림"})
-    return JsonResponse({"error": False, "message": "POST 요청만 허용"}, status=400)
+            return JsonResponse({"success": False,"error": True, "message": "아이디 또는 비번 틀림"})
+    return JsonResponse({"success": False,"error": True, "message": "POST 요청만 허용"}, status=400)
 
 @csrf_exempt
 def unity_register(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        username = data.get("username")
-        password = data.get("password")
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": True, "message": "POST 요청만 허용"}, status=400)
 
-        if User.objects.filter(username=username).exists():
-            return JsonResponse({"error": False, "message": "이미 계정이 있습니다."})
+    data = json.loads(request.body)
+    username = data.get("username")
+    password = data.get("password")
 
-        # 새 사용자 생성
-        user = User.objects.create_user(username=username, password=password)
-        user.save()
+    if not username or not password:
+        return JsonResponse({"success": False, "error": True, "message": "아이디와 비밀번호를 모두 입력하세요."})
 
-        return JsonResponse({"success": True, "message": "회원가입 성공"})
-    
-    return JsonResponse({"error": False, "message": "POST 요청만 허용"}, status=400)
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"success": False, "error": True, "message": "이미 계정이 있습니다."})
+
+    user = User.objects.create_user(username=username, password=password)
+    user.save()
+
+    return JsonResponse({"success": True, "message": "회원가입 성공"})
+
 
 
 @csrf_exempt

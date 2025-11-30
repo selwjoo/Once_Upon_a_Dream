@@ -146,6 +146,10 @@ public class NetworkManager : MonoBehaviour
                     {
                         ScoreUI.I.OnReceiveTimerUpdate(timerMsg.time);
                     }
+                    else if(GameManager_game1.instance != null)
+                    {
+                        GameManager_game1.instance.OnReceiveTimerUpdate(timerMsg.time);
+                    }
                     break;
                 case "chase_roles":
                     var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
@@ -161,7 +165,6 @@ public class NetworkManager : MonoBehaviour
                         // 역할 실제 적용
                         chaseGame.ApplyRoles(value);
                     }
-
                     break;
                 case "spawn":
                     if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
@@ -176,6 +179,14 @@ public class NetworkManager : MonoBehaviour
                         }
 
                     }
+                    break;
+                case "scoreGame1_update":
+                    var score1Msg = JsonUtility.FromJson<ScoreGame1UpdateMsg>(json);
+                    if (GameManager_game1.instance != null)
+                    {
+                        GameManager_game1.instance.OnScoreUpdate(score1Msg.scoreA, score1Msg.scoreB);
+                    }
+                    
                     break;
 
             }
@@ -296,6 +307,18 @@ public class NetworkManager : MonoBehaviour
         ws.Send(json);
     }
 
+    public void SendScoreGame1Update(int scoreA, int scoreB)
+    {
+        var msg = new ScoreGame1UpdateMsg
+        {
+            type = "scoreGame1_update",
+            scoreA = scoreA,
+            scoreB = scoreB
+        };
+        string json = JsonUtility.ToJson(msg);
+        ws.Send(json);
+    }
+
     public void SendRoleUpdate(string playerA, string playerB)
     {
         string json = JsonUtility.ToJson(new { type = "role_update", playerA = playerA, playerB = playerB });
@@ -402,6 +425,14 @@ public class SpawnMsg
 {
     public float x;
     public float y;
+}
+
+[System.Serializable]
+public class ScoreGame1UpdateMsg
+{
+    public string type = "scoreGame1_update";
+    public int scoreA;
+    public int scoreB;
 }
 
 

@@ -87,7 +87,7 @@ public class ChaseGame : MonoBehaviour
         while (t > 0)
         {
             t -= Time.deltaTime;
-            ui?.UpdateTimer(t);
+            ui.UpdateTimer(t);
 
             if (playerAController.HasWon)
             {

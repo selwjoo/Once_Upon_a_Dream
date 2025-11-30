@@ -10,6 +10,13 @@ public class ChaseGame : MonoBehaviour
     public float roundTime = 120f;
     private Coroutine gameLoop;
 
+    public GameObject prefab; // 생성할 오브젝트
+
+    // 범위
+    public float minX = -8f;
+    public float maxX = 8f;
+    public float minY = -4.5f;
+    public float maxY = 2.8f;
     void Start()
     {
         StartMode();
@@ -80,9 +87,9 @@ public class ChaseGame : MonoBehaviour
     IEnumerator GameLoop()
     {
         float t = roundTime;
-        blackout?.StartBlackouts();
+        blackout.StartBlackouts();
 
-        Debug.Log("GameLoop 호출됨");
+        SpawnRandom();
 
         while (t > 0)
         {
@@ -106,7 +113,7 @@ public class ChaseGame : MonoBehaviour
 
     void FinishRound(string winnerName)
     {
-        blackout?.StopBlackouts();
+        blackout.StopBlackouts();
         Debug.Log("이겨서 나옴");
         GameManager.Instance.OnGameModeFinished(winnerName);
         if (gameLoop != null)
@@ -114,5 +121,14 @@ public class ChaseGame : MonoBehaviour
             StopCoroutine(gameLoop);
             gameLoop = null;
         }
+    }
+
+    void SpawnRandom()
+    {
+        float x = Random.Range(minX, maxX);
+        float y = Random.Range(minY, maxY);
+
+        Vector3 spawnPos = new Vector3(x, y, 0); // z는 0으로 고정
+        Instantiate(prefab, spawnPos, Quaternion.identity);
     }
 }

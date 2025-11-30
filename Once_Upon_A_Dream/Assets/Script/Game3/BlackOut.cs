@@ -10,6 +10,7 @@ public class BlackOut : MonoBehaviour
 
     public void StartBlackouts()
     {
+
         StartCoroutine(BlackoutLoop());
     }
 
@@ -42,7 +43,7 @@ public class BlackOut : MonoBehaviour
     {
         if (blackoutPanel == null) return;
         blackoutPanel.alpha = on ? 1f : 0f;
-        blackoutPanel.blocksRaycasts = on;
+        //blackoutPanel.blocksRaycasts = on;
         blackoutPanel.interactable = !on;
     }
 }

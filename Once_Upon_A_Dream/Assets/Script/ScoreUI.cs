@@ -22,39 +22,45 @@ public class ScoreUI : MonoBehaviour
 
     public void UpdateScoreUI()
     {
-
         // A 점수 갱신
         for (int i = 0; i < 3; i++)
         {
-
-            // 슬롯 안 오브젝트 즉시 제거
-            while (slotsA[i].transform.childCount > 0)
+            // 슬롯 안 오브젝트 삭제
+            for (int c = slotsA[i].transform.childCount - 1; c >= 0; c--)
             {
-                DestroyImmediate(slotsA[i].transform.GetChild(0).gameObject);
+                Destroy(slotsA[i].transform.GetChild(c).gameObject);
             }
 
             // 점수만큼 승리 프리팹 생성
             if (i < GameManager.Instance.scoreA)
             {
-                Instantiate(winAPrefab, slotsA[i].transform);
+                GameObject obj = Instantiate(winAPrefab); // 먼저 씬에 생성
+                obj.transform.SetParent(slotsA[i].transform, false); // 부모 슬롯에 붙이고 위치 유지
+                obj.transform.localPosition = Vector3.zero; // 안전하게 초기화
+                obj.transform.localRotation = Quaternion.identity;
+                obj.transform.localScale = Vector3.one;
             }
         }
 
         // B 점수 갱신
         for (int i = 0; i < 3; i++)
         {
-            // 슬롯 안 오브젝트 즉시 제거
-            while (slotsB[i].transform.childCount > 0)
+            for (int c = slotsB[i].transform.childCount - 1; c >= 0; c--)
             {
-                DestroyImmediate(slotsB[i].transform.GetChild(0).gameObject);
+                Destroy(slotsB[i].transform.GetChild(c).gameObject);
             }
 
-            // 점수만큼 승리 프리팹 생성
             if (i < GameManager.Instance.scoreB)
             {
-                Instantiate(winBPrefab, slotsB[i].transform);
+                GameObject obj = Instantiate(winBPrefab);
+                obj.transform.SetParent(slotsB[i].transform, false);
+                obj.transform.localPosition = Vector3.zero;
+                obj.transform.localRotation = Quaternion.identity;
+                obj.transform.localScale = Vector3.one;
             }
         }
+
+
     }
 
     public void UpdateRoles(string playerA, string playerB)

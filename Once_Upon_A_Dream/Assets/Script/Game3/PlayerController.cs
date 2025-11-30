@@ -27,11 +27,24 @@ public class PlayerController : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical");
 
         Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
+        Vector2 newPos = rb.position + move;
 
-        // 위치 서버에 보내기 (기존)
+        // 화면 범위 제한
+        float minX = -8f;
+        float maxX = 8f;
+        float minY = -4.5f;
+        float maxY = 2.8f;
+
+        newPos.x = Mathf.Clamp(newPos.x, minX, maxX);
+        newPos.y = Mathf.Clamp(newPos.y, minY, maxY);
+
+        // 이동
+        rb.MovePosition(newPos);
+
+        // 위치 서버에 보내기
         NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
     }
+
 
 
     // ==== ChaseGame에서 호출하는 역할 세팅 함수 ====
@@ -60,12 +73,17 @@ public class PlayerController : MonoBehaviour
         }
 
         // ChaseGame - Runner가 Light와 충돌하면 승리
-        else if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
         {
             if (gameRole == GameRole.Runner && collision.CompareTag("Light"))
             {
                 Win();
             }
+        }
+
+        if ((gameRole == GameRole.Chaser && collision.gameObject.CompareTag("Player")))
+        {
+            Win();
         }
     }
 }

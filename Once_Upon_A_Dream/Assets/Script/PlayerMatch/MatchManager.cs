@@ -24,7 +24,7 @@ public class MatchManager : MonoBehaviour
 
         while (!matched)
         {
-            UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/ready/", "POST");
+            UnityWebRequest request = new UnityWebRequest("http://192.168.0.5:8000/unity/ready/", "POST");
             request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");

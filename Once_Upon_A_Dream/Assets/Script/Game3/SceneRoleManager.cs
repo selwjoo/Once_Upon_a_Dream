@@ -97,7 +97,7 @@ public class SceneRoleManager : MonoBehaviour
 
         string json = JsonUtility.ToJson(req);
 
-        UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/get_role/", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://192.168.0.5:8000/unity/get_role/", "POST");
         request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");

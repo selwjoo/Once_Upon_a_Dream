@@ -9,7 +9,7 @@ public class LiveSocket : MonoBehaviour
 
     async void Start()
     {
-        websocket = new WebSocket("ws://127.0.0.1:8000/ws/game/");
+        websocket = new WebSocket("ws://192.168.0.5:8000/ws/game/");
 
         websocket.OnMessage += (bytes) =>
         {

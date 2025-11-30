@@ -50,7 +50,7 @@ public class LoginManager : MonoBehaviour
 
     private IEnumerator SendLoginRequest(string json)
     {
-        UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/login/", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://192.168.0.5:8000/unity/login/", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
@@ -80,7 +80,7 @@ public class LoginManager : MonoBehaviour
 
     private IEnumerator SendRegisterRequest(string json)
     {
-        UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/register/", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://192.168.0.5:8000/unity/register/", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

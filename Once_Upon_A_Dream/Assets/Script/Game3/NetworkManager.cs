@@ -29,7 +29,7 @@ public class NetworkManager : MonoBehaviour
 
     void Start()
     {
-        ws = new WebSocket($"ws://localhost:8000/ws/game/{GameManager.Instance.roomId}/");
+        ws = new WebSocket($"ws://192.168.0.5:8000/ws/game/{GameManager.Instance.roomId}/");
 
         ws.OnOpen += (s, e) =>
         {

@@ -89,7 +89,7 @@ public class ChaseGame : MonoBehaviour
         float t = roundTime;
         blackout.StartBlackouts();
 
-        SpawnRandom();
+        RequestRandomSpawn();
 
         while (t > 0)
         {
@@ -123,12 +123,17 @@ public class ChaseGame : MonoBehaviour
         }
     }
 
-    void SpawnRandom()
+    // 스폰 요청 (아무 클라이언트에서 호출 가능)
+    public void RequestRandomSpawn()
     {
-        float x = Random.Range(minX, maxX);
-        float y = Random.Range(minY, maxY);
+        NetworkManager.I.RequestSpawn();
+    }
 
-        Vector3 spawnPos = new Vector3(x, y, 0); // z는 0으로 고정
+    // 서버에서 전달받은 위치로 생성
+    public void SpawnAtPosition(float x, float y)
+    {
+        Vector3 spawnPos = new Vector3(x, y, 0);
         Instantiate(prefab, spawnPos, Quaternion.identity);
+        Debug.Log($"오브젝트 생성: ({x}, {y})");
     }
 }

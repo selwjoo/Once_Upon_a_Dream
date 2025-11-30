@@ -158,6 +158,23 @@ public class NetworkManager : MonoBehaviour
                     var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
                     Debug.Log($"역할 수신 - PlayerA Chaser: {chaseRolesMsg.playerAIsChaser}");
                     break;
+
+                // 3. OnMessage에 케이스 추가
+                case "spawn":
+                    if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+                    {
+                        var spawnMsg = JsonUtility.FromJson<SpawnMsg>(json);
+
+                        // NetworkManager에서
+                        ChaseGame chaseGame = FindAnyObjectByType<ChaseGame>();
+                        if (chaseGame != null)
+                        {
+                            chaseGame.SpawnAtPosition(spawnMsg.x, spawnMsg.y);
+                        }
+
+                    }
+                    break;
+
             }
         }
         catch (Exception e)
@@ -165,6 +182,7 @@ public class NetworkManager : MonoBehaviour
             Debug.LogError($"메시지 처리 에러: {e.Message}\nJSON: {json}");
         }
     }
+   
 
     void OnMove(string json)
     {
@@ -297,6 +315,18 @@ public class NetworkManager : MonoBehaviour
         Debug.Log($"역할 전송 - PlayerA Chaser: {playerAIsChaser}");
     }
 
+    // 2. NetworkManager.cs에 메서드 추가
+    // 클라이언트가 서버에 스폰 요청
+    public void RequestSpawn()
+    {
+        if (ws == null || ws.ReadyState != WebSocketState.Open)
+            return;
+
+        var msg = new SpawnRequestMsg { type = "spawn_request" };
+        ws.Send(JsonUtility.ToJson(msg));
+        Debug.Log("스폰 요청 전송");
+    }
+
     void OnDestroy()
     {
         if (ws != null)
@@ -360,6 +390,20 @@ public class ChaseRolesMsg
 {
     public string type = "chase_roles";
     public bool playerAIsChaser;
+}
+
+// 1. NetworkManager.cs에 메시지 클래스 추가
+[System.Serializable]
+public class SpawnRequestMsg
+{
+    public string type = "spawn_request";
+}
+
+[System.Serializable]
+public class SpawnMsg
+{
+    public float x;
+    public float y;
 }
 
 

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using WebSocketSharp;
 using System.Collections.Generic;
 using System;
@@ -9,16 +9,16 @@ public class NetworkManager : MonoBehaviour
 
     WebSocket ws;
 
-    // »ó´ë ÇÃ·¹ÀÌ¾î ÃßÀû
+    // ìƒëŒ€ í”Œë ˆì´ì–´ ì¶”ì 
     public string otherPlayerName;
     public GameObject otherPlayer;
     public GameObject myPlayer;
 
-    // À§Ä¡ Àü¼Û ÁÖ±â (ÃÊ´ç 20È¸)
+    // ìœ„ì¹˜ ì „ì†¡ ì£¼ê¸° (ì´ˆë‹¹ 20íšŒ)
     private float sendInterval = 0.05f;
     private float sendTimer = 0f;
 
-    // ¡Ú ¸ŞÀÎ ½º·¹µå Å¥ ¡Ú
+    // â˜… ë©”ì¸ ìŠ¤ë ˆë“œ í â˜…
     private Queue<Action> mainThreadQueue = new Queue<Action>();
     private object queueLock = new object();
 
@@ -33,28 +33,28 @@ public class NetworkManager : MonoBehaviour
 
         ws.OnOpen += (s, e) =>
         {
-            Debug.Log("WS ¿¬°áµÊ");
+            Debug.Log("WS ì—°ê²°ë¨");
         };
 
         ws.OnMessage += (s, e) =>
         {
-            // ¡Ú ¸Ş½ÃÁö¸¦ ¸ŞÀÎ ½º·¹µå Å¥¿¡ Ãß°¡ ¡Ú
+            // â˜… ë©”ì‹œì§€ë¥¼ ë©”ì¸ ìŠ¤ë ˆë“œ íì— ì¶”ê°€ â˜…
             string data = e.Data;
             EnqueueMainThread(() =>
             {
-                //Debug.Log($"¸Ş½ÃÁö ¼ö½Å: {data}");
+                //Debug.Log($"ë©”ì‹œì§€ ìˆ˜ì‹ : {data}");
                 OnMessage(data);
             });
         };
 
         ws.OnError += (s, e) =>
         {
-            Debug.LogError($"WS ¿¡·¯: {e.Message}");
+            Debug.LogError($"WS ì—ëŸ¬: {e.Message}");
         };
 
         ws.OnClose += (s, e) =>
         {
-            Debug.Log($"WS Á¾·á: {e.Reason}");
+            Debug.Log($"WS ì¢…ë£Œ: {e.Reason}");
         };
 
         ws.Connect();
@@ -62,10 +62,10 @@ public class NetworkManager : MonoBehaviour
 
     void Update()
     {
-        // ¡Ú ¸ŞÀÎ ½º·¹µå Å¥ Ã³¸® ¡Ú
+        // â˜… ë©”ì¸ ìŠ¤ë ˆë“œ í ì²˜ë¦¬ â˜…
         ProcessMainThreadQueue();
 
-        // À§Ä¡ Àü¼Û
+        // ìœ„ì¹˜ ì „ì†¡
         sendTimer += Time.deltaTime;
         if (sendTimer >= sendInterval)
         {
@@ -73,14 +73,14 @@ public class NetworkManager : MonoBehaviour
             SendMyPosition();
         }
 
-        // otherPlayer Ã£±â ½Ãµµ
+        // otherPlayer ì°¾ê¸° ì‹œë„
         if (otherPlayer == null && !string.IsNullOrEmpty(otherPlayerName))
         {
             FindOtherPlayer();
         }
     }
 
-    // ¡Ú ¸ŞÀÎ ½º·¹µå Å¥¿¡ ÀÛ¾÷ Ãß°¡ ¡Ú
+    // â˜… ë©”ì¸ ìŠ¤ë ˆë“œ íì— ì‘ì—… ì¶”ê°€ â˜…
     void EnqueueMainThread(Action action)
     {
         lock (queueLock)
@@ -89,7 +89,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    // ¡Ú ¸ŞÀÎ ½º·¹µå¿¡¼­ Å¥ Ã³¸® ¡Ú
+    // â˜… ë©”ì¸ ìŠ¤ë ˆë“œì—ì„œ í ì²˜ë¦¬ â˜…
     void ProcessMainThreadQueue()
     {
         lock (queueLock)
@@ -103,7 +103,7 @@ public class NetworkManager : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"¸ŞÀÎ ½º·¹µå ÀÛ¾÷ ½ÇÇà ¿¡·¯: {e.Message}");
+                    Debug.LogError($"ë©”ì¸ ìŠ¤ë ˆë“œ ì‘ì—… ì‹¤í–‰ ì—ëŸ¬: {e.Message}");
                 }
             }
         }
@@ -122,7 +122,7 @@ public class NetworkManager : MonoBehaviour
                     if (roleMsg.username != GameManager.Instance.username)
                     {
                         otherPlayerName = roleMsg.username;
-                        Debug.Log($"[¿ªÇÒ ¼±ÅÃ] »ó´ë¹æ: {otherPlayerName}, ¿ªÇÒ: {roleMsg.role}");
+                        Debug.Log($"[ì—­í•  ì„ íƒ] ìƒëŒ€ë°©: {otherPlayerName}, ì—­í• : {roleMsg.role}");
                         FindOtherPlayer();
                     }
                     RemotePlayerManager.I.OnRole(json);
@@ -149,17 +149,26 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case "chase_roles":
                     var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
-                    Debug.Log($"¿ªÇÒ ¼ö½Å - PlayerA Chaser: {chaseRolesMsg.playerAIsChaser}");
+
+                    bool value = chaseRolesMsg.playerAIsChaser;
+
+                    // RoleBì—ì„œë§Œ ì‹¤í–‰
+                    if (GameManager.Instance.chosenRole == "RoleB")
+                    {
+                        // UI ì—…ë°ì´íŠ¸
+                        ScoreUI.I.OnReceiveChaseRoles(value);
+                        ChaseGame chaseGame = FindAnyObjectByType<ChaseGame>();
+                        // ì—­í•  ì‹¤ì œ ì ìš©
+                        chaseGame.ApplyRoles(value);
+                    }
 
                     break;
-
-                // 3. OnMessage¿¡ ÄÉÀÌ½º Ãß°¡
                 case "spawn":
                     if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
                     {
                         var spawnMsg = JsonUtility.FromJson<SpawnMsg>(json);
 
-                        // NetworkManager¿¡¼­
+                        // NetworkManagerì—ì„œ
                         ChaseGame chaseGame = FindAnyObjectByType<ChaseGame>();
                         if (chaseGame != null)
                         {
@@ -173,7 +182,7 @@ public class NetworkManager : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"¸Ş½ÃÁö Ã³¸® ¿¡·¯: {e.Message}\nJSON: {json}");
+            Debug.LogError($"ë©”ì‹œì§€ ì²˜ë¦¬ ì—ëŸ¬: {e.Message}\nJSON: {json}");
         }
     }
    
@@ -182,15 +191,15 @@ public class NetworkManager : MonoBehaviour
     {
         var msg = JsonUtility.FromJson<MoveMsg>(json);
 
-        // ³»°¡ º¸³½ ¸Ş½ÃÁö¸é ¹«½Ã
+        // ë‚´ê°€ ë³´ë‚¸ ë©”ì‹œì§€ë©´ ë¬´ì‹œ
         if (msg.username == GameManager.Instance.username)
         {
             return;
         }
 
-        //Debug.Log($"[À§Ä¡ ¼ö½Å] {msg.username} -> ({msg.x:F2}, {msg.y:F2})");
+        //Debug.Log($"[ìœ„ì¹˜ ìˆ˜ì‹ ] {msg.username} -> ({msg.x:F2}, {msg.y:F2})");
 
-        // otherPlayer Ã£±â
+        // otherPlayer ì°¾ê¸°
         if (otherPlayer == null && !string.IsNullOrEmpty(otherPlayerName))
         {
             FindOtherPlayer();
@@ -198,45 +207,45 @@ public class NetworkManager : MonoBehaviour
 
         if (otherPlayer != null)
         {
-            // ¡Ú ÀÌÁ¦ ¸ŞÀÎ ½º·¹µå¿¡¼­ ½ÇÇàµÇ¹Ç·Î ¾ÈÀü ¡Ú
+            // â˜… ì´ì œ ë©”ì¸ ìŠ¤ë ˆë“œì—ì„œ ì‹¤í–‰ë˜ë¯€ë¡œ ì•ˆì „ â˜…
             otherPlayer.transform.position = new Vector2(msg.x, msg.y);
-            //Debug.Log($"»ó´ë¹æ À§Ä¡ ¾÷µ¥ÀÌÆ® ¿Ï·á: {otherPlayer.transform.position}");
+            //Debug.Log($"ìƒëŒ€ë°© ìœ„ì¹˜ ì—…ë°ì´íŠ¸ ì™„ë£Œ: {otherPlayer.transform.position}");
         }
         else
         {
-            Debug.LogWarning($"[À§Ä¡ µ¿±âÈ­ ½ÇÆĞ] otherPlayer¸¦ Ã£À» ¼ö ¾øÀ½! Ã£´Â ÀÌ¸§: '{otherPlayerName}'");
+            Debug.LogWarning($"[ìœ„ì¹˜ ë™ê¸°í™” ì‹¤íŒ¨] otherPlayerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŒ! ì°¾ëŠ” ì´ë¦„: '{otherPlayerName}'");
         }
     }
 
     void FindOtherPlayer()
     {
-        // ¹æ¹ı 1: Á¤È®ÇÑ ÀÌ¸§À¸·Î Ã£±â
+        // ë°©ë²• 1: ì •í™•í•œ ì´ë¦„ìœ¼ë¡œ ì°¾ê¸°
         otherPlayer = GameObject.Find(otherPlayerName);
         if (otherPlayer != null)
         {
-            Debug.Log($"[Ã£±â ¼º°ø] ÀÌ¸§: {otherPlayer.name}");
+            Debug.Log($"[ì°¾ê¸° ì„±ê³µ] ì´ë¦„: {otherPlayer.name}");
             return;
         }
 
-        // ¹æ¹ı 2: Player ÅÂ±×·Î Ã£±â
+        // ë°©ë²• 2: Player íƒœê·¸ë¡œ ì°¾ê¸°
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        Debug.Log($"[Ã£±â ½Ãµµ] Player ÅÂ±× ¿ÀºêÁ§Æ® ¼ö: {players.Length}");
+        Debug.Log($"[ì°¾ê¸° ì‹œë„] Player íƒœê·¸ ì˜¤ë¸Œì íŠ¸ ìˆ˜: {players.Length}");
 
         foreach (var p in players)
         {
-            Debug.Log($"  - Player ¿ÀºêÁ§Æ®: {p.name}");
+            Debug.Log($"  - Player ì˜¤ë¸Œì íŠ¸: {p.name}");
 
-            // ³» Ä³¸¯ÅÍ°¡ ¾Æ´Ñ °Í Ã£±â
+            // ë‚´ ìºë¦­í„°ê°€ ì•„ë‹Œ ê²ƒ ì°¾ê¸°
             if (p.name == otherPlayerName ||
                 (p.name != GameManager.Instance.username && !p.name.Contains(GameManager.Instance.username)))
             {
                 otherPlayer = p;
-                Debug.Log($"[Ã£±â ¼º°ø] Tag·Î Ã£À½: {otherPlayer.name}");
+                Debug.Log($"[ì°¾ê¸° ì„±ê³µ] Tagë¡œ ì°¾ìŒ: {otherPlayer.name}");
                 return;
             }
         }
 
-        Debug.LogWarning($"[Ã£±â ½ÇÆĞ] '{otherPlayerName}'¸¦ Ã£À» ¼ö ¾øÀ½");
+        Debug.LogWarning($"[ì°¾ê¸° ì‹¤íŒ¨] '{otherPlayerName}'ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŒ");
     }
 
     void SendMyPosition()
@@ -253,13 +262,13 @@ public class NetworkManager : MonoBehaviour
     {
         if (ws == null || ws.ReadyState != WebSocketState.Open)
         {
-            Debug.LogWarning("WebSocketÀÌ ¿¬°áµÇÁö ¾ÊÀ½");
+            Debug.LogWarning("WebSocketì´ ì—°ê²°ë˜ì§€ ì•ŠìŒ");
             return;
         }
 
         var msg = new RoleMsg { type = "role_select", username = username, role = role };
         string json = JsonUtility.ToJson(msg);
-        Debug.Log($"[¿ªÇÒ Àü¼Û] {json}");
+        Debug.Log($"[ì—­í•  ì „ì†¡] {json}");
         ws.Send(json);
     }
 
@@ -300,17 +309,18 @@ public class NetworkManager : MonoBehaviour
     }
     public void SendChaseRoles(bool playerAIsChaser)
     {
+
         ChaseRolesMsg msg = new ChaseRolesMsg
         {
             playerAIsChaser = playerAIsChaser
         };
         string json = JsonUtility.ToJson(msg);
         ws.Send(json);
-        Debug.Log($"¿ªÇÒ Àü¼Û - PlayerA Chaser: {playerAIsChaser}");
+        Debug.Log($"ì—­í•  ì „ì†¡ - PlayerA Chaser: {playerAIsChaser}");
     }
 
-    // 2. NetworkManager.cs¿¡ ¸Ş¼­µå Ãß°¡
-    // Å¬¶óÀÌ¾ğÆ®°¡ ¼­¹ö¿¡ ½ºÆù ¿äÃ»
+    // 2. NetworkManager.csì— ë©”ì„œë“œ ì¶”ê°€
+    // í´ë¼ì´ì–¸íŠ¸ê°€ ì„œë²„ì— ìŠ¤í° ìš”ì²­
     public void RequestSpawn()
     {
         if (ws == null || ws.ReadyState != WebSocketState.Open)
@@ -318,7 +328,7 @@ public class NetworkManager : MonoBehaviour
 
         var msg = new SpawnRequestMsg { type = "spawn_request" };
         ws.Send(JsonUtility.ToJson(msg));
-        Debug.Log("½ºÆù ¿äÃ» Àü¼Û");
+        Debug.Log("ìŠ¤í° ìš”ì²­ ì „ì†¡");
     }
 
 
@@ -356,7 +366,7 @@ public class AnimMsg : BaseMsg
     public string animState;
 }
 
-// ¸Ş½ÃÁö Å¬·¡½ºµé
+// ë©”ì‹œì§€ í´ë˜ìŠ¤ë“¤
 [System.Serializable]
 public class ScoreUpdateMsg
 {
@@ -380,7 +390,7 @@ public class ChaseRolesMsg
     public bool playerAIsChaser;
 }
 
-// 1. NetworkManager.cs¿¡ ¸Ş½ÃÁö Å¬·¡½º Ãß°¡
+// 1. NetworkManager.csì— ë©”ì‹œì§€ í´ë˜ìŠ¤ ì¶”ê°€
 [System.Serializable]
 public class SpawnRequestMsg
 {

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 public class ChaseGame : MonoBehaviour
@@ -10,16 +10,20 @@ public class ChaseGame : MonoBehaviour
     public float roundTime = 120f;
     private Coroutine gameLoop;
 
-    public GameObject prefab; // »ı¼ºÇÒ ¿ÀºêÁ§Æ®
+    public GameObject prefab; // ìƒì„±í•  ì˜¤ë¸Œì íŠ¸
 
-    // ¹üÀ§
+    // ë²”ìœ„
     public float minX = -8f;
     public float maxX = 8f;
     public float minY = -4.5f;
     public float maxY = 2.8f;
     void Start()
     {
-        StartMode();
+        Debug.Log("StartMode í˜¸ì¶œë¨");
+
+        StartCoroutine(WaitForPlayerAAndAssignRoles());
+
+
     }
 
     public void SetPlayers(PlayerController playerA, PlayerController playerB)
@@ -29,32 +33,27 @@ public class ChaseGame : MonoBehaviour
 
     }
 
-    public void StartMode()
-    {
-        Debug.Log("StartMode È£ÃâµÊ");
-
-        StartCoroutine(WaitForPlayerAAndAssignRoles());
-
-    }
-
     private IEnumerator WaitForPlayerAAndAssignRoles()
     {
-        // playerAController°¡ ÇÒ´çµÉ ¶§±îÁö ´ë±â
+        // playerAControllerê°€ í• ë‹¹ë  ë•Œê¹Œì§€ ëŒ€ê¸°
         while (playerAController == null)
         {
-            yield return null; // ´ÙÀ½ ÇÁ·¹ÀÓ±îÁö ´ë±â
+            yield return null; // ë‹¤ìŒ í”„ë ˆì„ê¹Œì§€ ëŒ€ê¸°
         }
 
-        // ÀÌÁ¦ ÇÒ´çµÊ, ¿ªÇÒ °áÁ¤ ÁøÇà
-        bool playerAIsChaser = Random.value > 0.5f;
 
-        // ¼­¹ö·Î ¿ªÇÒ Àü¼Û (playerB¿¡°Ô Àü´ŞµÉ ¿¹Á¤)
-        NetworkManager.I.SendChaseRoles(playerAIsChaser);
+        if (GameManager.Instance.chosenRole == "RoleA")
+        {
+            // ì´ì œ í• ë‹¹ë¨, ì—­í•  ê²°ì • ì§„í–‰
+            bool playerAIsChaser = Random.value > 0.5f;
 
-        // ·ÎÄÃ Àû¿ë (playerA´Â Áï½Ã Àû¿ë)
-        ApplyRoles(playerAIsChaser, isLocal: true);
+            // ì„œë²„ë¡œ ì—­í•  ì „ì†¡ (playerBì—ê²Œ ì „ë‹¬ë  ì˜ˆì •)
+            NetworkManager.I.SendChaseRoles(playerAIsChaser);
+            // ë¡œì»¬ ì ìš© (playerAëŠ” ì¦‰ì‹œ ì ìš©)
+            ApplyRoles(playerAIsChaser);
 
-        ScoreUI.I.OnReceiveChaseRoles(playerAIsChaser);
+            ScoreUI.I.OnReceiveChaseRoles(playerAIsChaser);
+        }
 
         RequestRandomSpawn();
 
@@ -64,18 +63,17 @@ public class ChaseGame : MonoBehaviour
 
 
 
-    public void ApplyRoles(bool playerAIsChaser, bool isLocal = false)
+    public void ApplyRoles(bool playerAIsChaser)
     {
-        if (isLocal)
-        {
-            // playerA (È£½ºÆ®)¿¡¼­ µÑ ´Ù ¼³Á¤
-            playerAController.SetRole(playerAIsChaser ? PlayerController.GameRole.Chaser : PlayerController.GameRole.Runner);
-            playerBController.SetRole(playerAIsChaser ? PlayerController.GameRole.Runner : PlayerController.GameRole.Chaser);
+      
+        // playerA (í˜¸ìŠ¤íŠ¸)ì—ì„œ ë‘˜ ë‹¤ ì„¤ì •
+        playerAController.SetRole(playerAIsChaser ? PlayerController.GameRole.Chaser : PlayerController.GameRole.Runner);
+        playerBController.SetRole(playerAIsChaser ? PlayerController.GameRole.Runner : PlayerController.GameRole.Chaser);
 
-            Debug.Log($"[·ÎÄÃ] playerA ¿ªÇÒ: {playerAController.gameRole}");
-            Debug.Log($"[·ÎÄÃ] playerB ¿ªÇÒ: {playerBController.gameRole}");
-        }
-        // else ºí·Ï »èÁ¦! playerB¿¡¼­´Â ¾Æ¹«°Íµµ ¾È ÇÔ
+        Debug.Log($"[ë¡œì»¬] playerA ì—­í• : {playerAController.gameRole}");
+        Debug.Log($"[ë¡œì»¬] playerB ì—­í• : {playerBController.gameRole}");
+        
+
 
     }
 
@@ -109,7 +107,7 @@ public class ChaseGame : MonoBehaviour
     void FinishRound(string winnerName)
     {
         blackout.StopBlackouts();
-        Debug.Log("ÀÌ°Ü¼­ ³ª¿È");
+        Debug.Log("ì´ê²¨ì„œ ë‚˜ì˜´");
         GameManager.Instance.OnGameModeFinished(winnerName);
         if (gameLoop != null)
         {
@@ -118,14 +116,14 @@ public class ChaseGame : MonoBehaviour
         }
     }
 
-    // ½ºÆù ¿äÃ» (¾Æ¹« Å¬¶óÀÌ¾ğÆ®¿¡¼­ È£Ãâ °¡´É)
+    // ìŠ¤í° ìš”ì²­ (ì•„ë¬´ í´ë¼ì´ì–¸íŠ¸ì—ì„œ í˜¸ì¶œ ê°€ëŠ¥)
     public void RequestRandomSpawn()
     {
-        // PlayerA¸¸ ¿äÃ»
+        // PlayerAë§Œ ìš”ì²­
         if (GameManager.Instance.chosenRole == "RoleA")
         {
             NetworkManager.I.RequestSpawn();
-            Debug.Log("½ºÆù ¿äÃ» Àü¼Û (PlayerA)");
+            Debug.Log("ìŠ¤í° ìš”ì²­ ì „ì†¡ (PlayerA)");
         }
 
     }
@@ -134,11 +132,11 @@ public class ChaseGame : MonoBehaviour
     {
         Vector3 spawnPos = new Vector3(x, y, 0);
 
-        // ÀÌ¹Ì »ı¼ºµÆ´ÂÁö Ã¼Å© (¼±ÅÃ»çÇ×)
+        // ì´ë¯¸ ìƒì„±ëëŠ”ì§€ ì²´í¬ (ì„ íƒì‚¬í•­)
         // if (existingObject != null) return;
 
         GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        Debug.Log($"¿ÀºêÁ§Æ® »ı¼º: ({x}, {y})");
+        Debug.Log($"ì˜¤ë¸Œì íŠ¸ ìƒì„±: ({x}, {y})");
     }
 
 

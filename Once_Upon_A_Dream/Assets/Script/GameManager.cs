@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public string roomId;     // 방 번호
     public string chosenRole; // 내가 선택한 역할
 
+
     public int scoreA = 0; // Player A
     public int scoreB = 0; // Player B
 

@@ -106,18 +106,30 @@ public class ScoreUI : MonoBehaviour
 
         if (myRole == "RoleA")
         {
-            string myChaseRole = playerAIsChaser ? "Runner" : "Chaser";
-            StartCoroutine(ShowMyRole(roleTextA, myChaseRole));
+            if (playerAIsChaser)
+            {
+                StartCoroutine(ShowMyRole(roleTextB)); //Chaser
+            }
+            else
+            {
+                StartCoroutine(ShowMyRole(roleTextA)); //Ruuner
+            }
         }
         // PlayerB¶ó¸é
         else if (myRole == "RoleB")
         {
-            string myChaseRole = playerAIsChaser ? "Chaser" : "Runner";
-            StartCoroutine(ShowMyRole(roleTextB, myChaseRole));
+            if (playerAIsChaser)
+            {
+                StartCoroutine(ShowMyRole(roleTextA)); //Runner
+            }
+            else
+            {
+                StartCoroutine(ShowMyRole(roleTextB)); //Chaser
+            }
         }
     }
 
-    System.Collections.IEnumerator ShowMyRole(Text roleText, string role)
+    System.Collections.IEnumerator ShowMyRole(Text roleText)
     {
         if (roleText == null) yield break;
 

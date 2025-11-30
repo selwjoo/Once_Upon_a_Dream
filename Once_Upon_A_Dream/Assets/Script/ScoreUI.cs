@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,15 @@ public class ScoreUI : MonoBehaviour
     void Awake()
     {
         I = this;
+    }
+
+    // 서버로부터 받은 점수 업데이트
+    public void OnReceiveScoreUpdate(int scoreA, int scoreB)
+    {
+        GameManager.Instance.scoreA = scoreA;
+        GameManager.Instance.scoreB = scoreB;
+
+        UpdateScoreUI();
     }
 
     public void UpdateScoreUI()
@@ -63,11 +73,6 @@ public class ScoreUI : MonoBehaviour
 
     }
 
-    public void UpdateRoles(string playerA, string playerB)
-    {
-        // 플레이어 화면에다가 당신은 ... 입니다. 띄어ㅜ
-         
-    }
 
     // t: 시간(초)
     public void UpdateTimer(float t)
@@ -84,25 +89,6 @@ public class ScoreUI : MonoBehaviour
         }
     }
 
-    // 서버로부터 받은 점수 업데이트
-    public void OnReceiveScoreUpdate(int scoreA, int scoreB)
-    {
-        GameManager.Instance.scoreA = scoreA;
-        GameManager.Instance.scoreB = scoreB;
-
-        UpdateScoreUI();
-    }
-
-
-    // 서버로부터 받은 역할 업데이트
-    public void OnReceiveRoleUpdate(string playerA, string playerB)
-    {
-        if (roleTextA != null)
-            roleTextA.text = playerA;
-        if (roleTextB != null)
-            roleTextB.text = playerB;
-    }
-
     // 서버로부터 받은 타이머 업데이트
     public void OnReceiveTimerUpdate(float t)
     {
@@ -110,4 +96,37 @@ public class ScoreUI : MonoBehaviour
         int seconds = Mathf.FloorToInt(t % 60);
         timerText.text = $"{minutes:00}:{seconds:00}";
     }
+
+
+    public void OnReceiveChaseRoles(bool playerAIsChaser)
+    {
+        Debug.Log($"[ScoreUI] Chase Roles 수신 - PlayerA Chaser: {playerAIsChaser}");
+
+        string myRole = GameManager.Instance.chosenRole;
+
+        if (myRole == "RoleA")
+        {
+            string myChaseRole = playerAIsChaser ? "Runner" : "Chaser";
+            StartCoroutine(ShowMyRole(roleTextA, myChaseRole));
+        }
+        // PlayerB라면
+        else if (myRole == "RoleB")
+        {
+            string myChaseRole = playerAIsChaser ? "Chaser" : "Runner";
+            StartCoroutine(ShowMyRole(roleTextB, myChaseRole));
+        }
+    }
+
+    System.Collections.IEnumerator ShowMyRole(Text roleText, string role)
+    {
+        if (roleText == null) yield break;
+
+        roleText.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(3f);
+
+        roleText.gameObject.SetActive(false);
+    }
+
+
 }

@@ -140,13 +140,6 @@ public class NetworkManager : MonoBehaviour
                         ScoreUI.I.OnReceiveScoreUpdate(scoreMsg.scoreA, scoreMsg.scoreB);
                     }
                     break;
-                case "role_update":
-                    var roleUpdateMsg = JsonUtility.FromJson<RoleUpdateMsg>(json);
-                    if (ScoreUI.I != null)
-                    {
-                        ScoreUI.I.OnReceiveRoleUpdate(roleUpdateMsg.playerA, roleUpdateMsg.playerB);
-                    }
-                    break;
                 case "timer_update":
                     var timerMsg = JsonUtility.FromJson<TimerUpdateMsg>(json);
                     if (ScoreUI.I != null)
@@ -157,6 +150,7 @@ public class NetworkManager : MonoBehaviour
                 case "chase_roles":
                     var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
                     Debug.Log($"역할 수신 - PlayerA Chaser: {chaseRolesMsg.playerAIsChaser}");
+
                     break;
 
                 // 3. OnMessage에 케이스 추가
@@ -371,13 +365,6 @@ public class ScoreUpdateMsg
     public int scoreB;
 }
 
-[System.Serializable]
-public class RoleUpdateMsg
-{
-    public string type = "role_update";
-    public string playerA;
-    public string playerB;
-}
 
 [System.Serializable]
 public class TimerUpdateMsg

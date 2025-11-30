@@ -54,6 +54,8 @@ public class ChaseGame : MonoBehaviour
         // 로컬 적용 (playerA는 즉시 적용)
         ApplyRoles(playerAIsChaser, isLocal: true);
 
+        ScoreUI.I.OnReceiveChaseRoles(playerAIsChaser);
+
         RequestRandomSpawn();
 
         gameLoop = StartCoroutine(GameLoop());
@@ -75,14 +77,6 @@ public class ChaseGame : MonoBehaviour
         }
         // else 블록 삭제! playerB에서는 아무것도 안 함
 
-        // UI 업데이트
-        if (ui != null)
-        {
-            ui.UpdateRoles(
-                playerAController.role + "는 " + playerAController.gameRole.ToString(),
-                playerBController.role + "는 " + playerBController.gameRole.ToString()
-            );
-        }
     }
 
 

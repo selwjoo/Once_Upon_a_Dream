@@ -23,8 +23,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         # spawn_request는 별도 처리
         if  data.get('type') == 'spawn_request':
             import random
-            x = random.uniform(-5, 5)  # minX, maxX 범위
-            y = random.uniform(-3, 3)  # minY, maxY 범위
+            x = random.uniform(-10, 10)  # minX, maxX 범위
+            y = random.uniform(-10, 10)  # minY, maxY 범위
             
             # 모든 클라이언트에게 브로드캐스트
             await self.channel_layer.group_send(

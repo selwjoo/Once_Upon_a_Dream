@@ -13,10 +13,33 @@ public class PlayerController : MonoBehaviour
     public GameRole gameRole;     // ChaseGame 역할
     public bool HasWon = false;   // ChaseGame 승리 여부
 
+    // 화면 범위 제한
+    private float minX = -8f;
+    private float maxX = 8f;
+    private float minY = -4.5f;
+    private float maxY = 2.8f;
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+        {
+            // 화면 범위 제한
+            minX = -12f;
+            maxX = 12f;
+            minY = -12f;
+            maxY = 12f;
+        }
+        else
+        {
+            // 화면 범위 제한
+            minX = -8f;
+            maxX = 8f;
+            minY = -4.5f;
+            maxY = 2.8f;
+        }
     }
 
     void FixedUpdate()
@@ -28,12 +51,7 @@ public class PlayerController : MonoBehaviour
 
         Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
         Vector2 newPos = rb.position + move;
-
-        // 화면 범위 제한
-        float minX = -8f;
-        float maxX = 8f;
-        float minY = -4.5f;
-        float maxY = 2.8f;
+        
 
         newPos.x = Mathf.Clamp(newPos.x, minX, maxX);
         newPos.y = Mathf.Clamp(newPos.y, minY, maxY);

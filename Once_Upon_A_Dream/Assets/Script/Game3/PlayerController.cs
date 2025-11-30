@@ -2,17 +2,45 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public string role; // ³» ¿ªÇÒ(RoleA, RoleB µî)
+    // ===== ê¸°ì¡´ ë³€ìˆ˜ =====
+    public string role;           // 1, 2 ë“± ìœ ì € ì—­í•  (ê¸°ì¡´ ê²Œì„ìš©)
     public bool isMyTurn = false;
-
     public float speed = 5f;
     private Rigidbody2D rb;
+
+    // ===== ChaseGame ì „ìš© ë³€ìˆ˜ =====
+    public enum GameRole { Chaser, Runner }
+    public GameRole gameRole;     // ChaseGame ì—­í• 
+    public bool HasWon = false;   // ChaseGame ìŠ¹ë¦¬ ì—¬ë¶€
+
+    // í™”ë©´ ë²”ìœ„ ì œí•œ
+    private float minX = -8f;
+    private float maxX = 8f;
+    private float minY = -4.5f;
+    private float maxY = 2.8f;
 
     Animator ani;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+        {
+            // í™”ë©´ ë²”ìœ„ ì œí•œ
+            minX = -12f;
+            maxX = 12f;
+            minY = -12f;
+            maxY = 12f;
+        }
+        else
+        {
+            // í™”ë©´ ë²”ìœ„ ì œí•œ
+            minX = -8f;
+            maxX = 8f;
+            minY = -4.5f;
+            maxY = 2.8f;
+        }
         ani = GetComponent<Animator>();
     }
 
@@ -24,33 +52,61 @@ public class PlayerController : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical");
 
         Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
+        Vector2 newPos = rb.position + move;
+        
+
+        newPos.x = Mathf.Clamp(newPos.x, minX, maxX);
+        newPos.y = Mathf.Clamp(newPos.y, minY, maxY);
+
+        // ì´ë™
+        rb.MovePosition(newPos);
 
         ani.SetFloat("DirX", h);
         ani.SetFloat("DirY", v);
 
-        // À§Ä¡ ¼­¹ö¿¡ º¸³»±â
-        //NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
+        // ìœ„ì¹˜ ì„œë²„ì— ë³´ë‚´ê¸°
+        NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
     }
 
 
+
+    // ==== ChaseGameì—ì„œ í˜¸ì¶œí•˜ëŠ” ì—­í•  ì„¸íŒ… í•¨ìˆ˜ ====
+    public void SetRole(GameRole newRole)
+    {
+        gameRole = newRole;
+        HasWon = false;
+    }
+
+    public void Win()
+    {
+        HasWon = true;
+    }
+
+
+    // ==== ê¸°ì¡´ í¬ì¸íŠ¸ ê²Œì„ ì¶©ëŒ ì²˜ë¦¬ ====
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Game1 ¾À ÀÌ¶ó¸é
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game1")
         {
-            // Ãæµ¹ÇÑ ¿ÀºêÁ§Æ®°¡ PointStar°¡ ¾Æ´Ï¸é Á¾·á
             if (!collision.CompareTag("PointStar")) return;
-
             if (!GameManager_game1.instance.isGameStart) return;
 
-            // Á¦°Å
             Destroy(collision.gameObject);
-            GameManager_game1.instance.PlayerPoint[int.Parse(role) - 1]++; // Æ÷ÀÎÆ® Áõ°¡
-            
-            
-            
+            GameManager_game1.instance.PlayerPoint[int.Parse(role) - 1]++;
         }
 
+        // ChaseGame - Runnerê°€ Lightì™€ ì¶©ëŒí•˜ë©´ ìŠ¹ë¦¬
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+        {
+            if (gameRole == GameRole.Runner && collision.CompareTag("Light"))
+            {
+                Win();
+            }
+        }
+
+        if ((gameRole == GameRole.Chaser && collision.gameObject.CompareTag("Player")))
+        {
+            Win();
+        }
     }
 }

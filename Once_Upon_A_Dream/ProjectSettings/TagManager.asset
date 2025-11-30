@@ -6,14 +6,15 @@ TagManager:
   tags:
   - PointStar
   - RhythmTile
+  - Light
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
+  - Barrier
   - 
   - 
   - 

@@ -20,13 +20,30 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         print(f"[수신] match: {self.match_id}, type: {data.get('type')}, from: {data.get('username')}")
         
-        # 자신의 channel_name을 데이터에 포함
+        # spawn_request는 별도 처리
+        if  data.get('type') == 'spawn_request':
+            import random
+            x = random.uniform(-10, 10)  # minX, maxX 범위
+            y = random.uniform(-10, 10)  # minY, maxY 범위
+            
+            # 모든 클라이언트에게 브로드캐스트
+            await self.channel_layer.group_send(
+                self.room_name,  # ← 여기! room_group_name이 아니라 self.room_name
+                {
+                    'type': 'spawn_message',
+                    'x': x,
+                    'y': y
+                }
+            )
+            return  # 여기서 끝!
+        
+        # 일반 메시지는 기존 방식대로
         await self.channel_layer.group_send(
             self.room_name,
             {
                 "type": "game_message",
                 "payload": data,
-                "sender_channel": self.channel_name  # 발신자 식별
+                "sender_channel": self.channel_name
             }
         )
 
@@ -37,3 +54,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         print(f"[전송] to channel: {self.channel_name}, type: {event['payload'].get('type')}")
         await self.send(text_data=json.dumps(event["payload"]))
+
+    async def spawn_message(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'spawn',
+            'x': event['x'],
+            'y': event['y']
+        }))

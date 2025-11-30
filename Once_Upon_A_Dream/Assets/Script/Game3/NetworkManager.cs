@@ -12,6 +12,7 @@ public class NetworkManager : MonoBehaviour
     // 상대 플레이어 추적
     public string otherPlayerName;
     public GameObject otherPlayer;
+    public GameObject myPlayer;
 
     // 위치 전송 주기 (초당 20회)
     private float sendInterval = 0.05f;
@@ -41,7 +42,7 @@ public class NetworkManager : MonoBehaviour
             string data = e.Data;
             EnqueueMainThread(() =>
             {
-                Debug.Log($"메시지 수신: {data}");
+                //Debug.Log($"메시지 수신: {data}");
                 OnMessage(data);
             });
         };
@@ -113,30 +114,61 @@ public class NetworkManager : MonoBehaviour
         try
         {
             BaseMsg msg = JsonUtility.FromJson<BaseMsg>(json);
-
             switch (msg.type)
             {
                 case "role_select":
                     var roleMsg = JsonUtility.FromJson<RoleMsg>(json);
                     GameManager.Instance.SetPlayerRole(roleMsg.username, roleMsg.role);
-
                     if (roleMsg.username != GameManager.Instance.username)
                     {
                         otherPlayerName = roleMsg.username;
                         Debug.Log($"[역할 선택] 상대방: {otherPlayerName}, 역할: {roleMsg.role}");
                         FindOtherPlayer();
                     }
-
                     RemotePlayerManager.I.OnRole(json);
                     break;
-
                 case "move":
                     OnMove(json);
                     break;
-
                 case "anim":
                     RemotePlayerManager.I.OnAnim(json);
                     break;
+                case "score_update":
+                    var scoreMsg = JsonUtility.FromJson<ScoreUpdateMsg>(json);
+                    if (ScoreUI.I != null)
+                    {
+                        ScoreUI.I.OnReceiveScoreUpdate(scoreMsg.scoreA, scoreMsg.scoreB);
+                    }
+                    break;
+                case "timer_update":
+                    var timerMsg = JsonUtility.FromJson<TimerUpdateMsg>(json);
+                    if (ScoreUI.I != null)
+                    {
+                        ScoreUI.I.OnReceiveTimerUpdate(timerMsg.time);
+                    }
+                    break;
+                case "chase_roles":
+                    var chaseRolesMsg = JsonUtility.FromJson<ChaseRolesMsg>(json);
+                    Debug.Log($"역할 수신 - PlayerA Chaser: {chaseRolesMsg.playerAIsChaser}");
+
+                    break;
+
+                // 3. OnMessage에 케이스 추가
+                case "spawn":
+                    if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+                    {
+                        var spawnMsg = JsonUtility.FromJson<SpawnMsg>(json);
+
+                        // NetworkManager에서
+                        ChaseGame chaseGame = FindAnyObjectByType<ChaseGame>();
+                        if (chaseGame != null)
+                        {
+                            chaseGame.SpawnAtPosition(spawnMsg.x, spawnMsg.y);
+                        }
+
+                    }
+                    break;
+
             }
         }
         catch (Exception e)
@@ -144,6 +176,7 @@ public class NetworkManager : MonoBehaviour
             Debug.LogError($"메시지 처리 에러: {e.Message}\nJSON: {json}");
         }
     }
+   
 
     void OnMove(string json)
     {
@@ -155,7 +188,7 @@ public class NetworkManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[위치 수신] {msg.username} -> ({msg.x:F2}, {msg.y:F2})");
+        //Debug.Log($"[위치 수신] {msg.username} -> ({msg.x:F2}, {msg.y:F2})");
 
         // otherPlayer 찾기
         if (otherPlayer == null && !string.IsNullOrEmpty(otherPlayerName))
@@ -167,7 +200,7 @@ public class NetworkManager : MonoBehaviour
         {
             // ★ 이제 메인 스레드에서 실행되므로 안전 ★
             otherPlayer.transform.position = new Vector2(msg.x, msg.y);
-            Debug.Log($"상대방 위치 업데이트 완료: {otherPlayer.transform.position}");
+            //Debug.Log($"상대방 위치 업데이트 완료: {otherPlayer.transform.position}");
         }
         else
         {
@@ -208,16 +241,12 @@ public class NetworkManager : MonoBehaviour
 
     void SendMyPosition()
     {
-        if (ws == null || ws.ReadyState != WebSocketState.Open)
+        if (ws == null || ws.ReadyState != WebSocketState.Open || myPlayer == null)
             return;
 
-        // 내 캐릭터 찾기 (예: Tag 사용)
-        GameObject myPlayer = GameObject.FindGameObjectWithTag("Player");
 
-        if (myPlayer != null && myPlayer.name == GameManager.Instance.username)
-        {
-            SendMove(GameManager.Instance.username, myPlayer.transform.position);
-        }
+        SendMove(GameManager.Instance.username, myPlayer.transform.position);
+        
     }
 
     public void SendRole(string username, string role)
@@ -252,6 +281,47 @@ public class NetworkManager : MonoBehaviour
         ws.Send(JsonUtility.ToJson(msg));
     }
 
+    public void SendScoreUpdate(int scoreA, int scoreB)
+    {
+        string json = JsonUtility.ToJson(new { type = "score_update", scoreA = scoreA, scoreB = scoreB });
+        ws.Send(json);
+    }
+
+    public void SendRoleUpdate(string playerA, string playerB)
+    {
+        string json = JsonUtility.ToJson(new { type = "role_update", playerA = playerA, playerB = playerB });
+        ws.Send(json);
+    }
+
+    public void SendTimerUpdate(float time)
+    {
+        string json = JsonUtility.ToJson(new { type = "timer_update", time = time });
+        ws.Send(json);
+    }
+    public void SendChaseRoles(bool playerAIsChaser)
+    {
+        ChaseRolesMsg msg = new ChaseRolesMsg
+        {
+            playerAIsChaser = playerAIsChaser
+        };
+        string json = JsonUtility.ToJson(msg);
+        ws.Send(json);
+        Debug.Log($"역할 전송 - PlayerA Chaser: {playerAIsChaser}");
+    }
+
+    // 2. NetworkManager.cs에 메서드 추가
+    // 클라이언트가 서버에 스폰 요청
+    public void RequestSpawn()
+    {
+        if (ws == null || ws.ReadyState != WebSocketState.Open)
+            return;
+
+        var msg = new SpawnRequestMsg { type = "spawn_request" };
+        ws.Send(JsonUtility.ToJson(msg));
+        Debug.Log("스폰 요청 전송");
+    }
+
+
     void OnDestroy()
     {
         if (ws != null)
@@ -285,3 +355,44 @@ public class AnimMsg : BaseMsg
     public string username;
     public string animState;
 }
+
+// 메시지 클래스들
+[System.Serializable]
+public class ScoreUpdateMsg
+{
+    public string type = "score_update";
+    public int scoreA;
+    public int scoreB;
+}
+
+
+[System.Serializable]
+public class TimerUpdateMsg
+{
+    public string type = "timer_update";
+    public float time;
+}
+
+[System.Serializable]
+public class ChaseRolesMsg
+{
+    public string type = "chase_roles";
+    public bool playerAIsChaser;
+}
+
+// 1. NetworkManager.cs에 메시지 클래스 추가
+[System.Serializable]
+public class SpawnRequestMsg
+{
+    public string type = "spawn_request";
+}
+
+[System.Serializable]
+public class SpawnMsg
+{
+    public float x;
+    public float y;
+}
+
+
+

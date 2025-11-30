@@ -54,6 +54,8 @@ public class ChaseGame : MonoBehaviour
         // 로컬 적용 (playerA는 즉시 적용)
         ApplyRoles(playerAIsChaser, isLocal: true);
 
+        RequestRandomSpawn();
+
         gameLoop = StartCoroutine(GameLoop());
 
     }
@@ -89,7 +91,6 @@ public class ChaseGame : MonoBehaviour
         float t = roundTime;
         blackout.StartBlackouts();
 
-        RequestRandomSpawn();
 
         while (t > 0)
         {
@@ -126,14 +127,25 @@ public class ChaseGame : MonoBehaviour
     // 스폰 요청 (아무 클라이언트에서 호출 가능)
     public void RequestRandomSpawn()
     {
-        NetworkManager.I.RequestSpawn();
+        // PlayerA만 요청
+        if (GameManager.Instance.chosenRole == "RoleA")
+        {
+            NetworkManager.I.RequestSpawn();
+            Debug.Log("스폰 요청 전송 (PlayerA)");
+        }
+
     }
 
-    // 서버에서 전달받은 위치로 생성
     public void SpawnAtPosition(float x, float y)
     {
         Vector3 spawnPos = new Vector3(x, y, 0);
-        Instantiate(prefab, spawnPos, Quaternion.identity);
+
+        // 이미 생성됐는지 체크 (선택사항)
+        // if (existingObject != null) return;
+
+        GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
         Debug.Log($"오브젝트 생성: ({x}, {y})");
     }
+
+
 }

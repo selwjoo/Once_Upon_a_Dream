@@ -327,6 +327,7 @@ public class NetworkManager : MonoBehaviour
         Debug.Log("스폰 요청 전송");
     }
 
+
     void OnDestroy()
     {
         if (ws != null)

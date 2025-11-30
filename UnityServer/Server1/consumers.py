@@ -21,7 +21,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         print(f"[수신] match: {self.match_id}, type: {data.get('type')}, from: {data.get('username')}")
         
         # spawn_request는 별도 처리
-        if data['type'] == 'spawn_request':
+        if  data.get('type') == 'spawn_request':
             import random
             x = random.uniform(-5, 5)  # minX, maxX 범위
             y = random.uniform(-3, 3)  # minY, maxY 범위

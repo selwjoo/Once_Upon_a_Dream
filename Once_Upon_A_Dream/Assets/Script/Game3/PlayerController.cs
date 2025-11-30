@@ -2,25 +2,120 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public string role; // ³» ¿ªÇÒ(RoleA, RoleB µî)
-    public bool isMyTurn = false; // ¿ªÇÒ ¼±ÅÃ ÈÄ È°¼ºÈ­
-
+    // ===== ê¸°ì¡´ ë³€ìˆ˜ =====
+    public string role;           // 1, 2 ë“± ìœ ì € ì—­í•  (ê¸°ì¡´ ê²Œìž„ìš©)
+    public bool isMyTurn = false;
     public float speed = 5f;
-    private Rigidbody rb;
+    private Rigidbody2D rb;
+
+    // ===== ChaseGame ì „ìš© ë³€ìˆ˜ =====
+    public enum GameRole { Chaser, Runner }
+    public GameRole gameRole;     // ChaseGame ì—­í• 
+    public bool HasWon = false;   // ChaseGame ìŠ¹ë¦¬ ì—¬ë¶€
+
+    // í™”ë©´ ë²”ìœ„ ì œí•œ
+    private float minX = -8f;
+    private float maxX = 8f;
+    private float minY = -4.5f;
+    private float maxY = 2.8f;
+
+    Animator ani;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+        {
+            // í™”ë©´ ë²”ìœ„ ì œí•œ
+            minX = -12f;
+            maxX = 12f;
+            minY = -12f;
+            maxY = 12f;
+        }
+        else
+        {
+            // í™”ë©´ ë²”ìœ„ ì œí•œ
+            minX = -8f;
+            maxX = 8f;
+            minY = -4.5f;
+            maxY = 4.5f;
+        }
+        ani = GetComponent<Animator>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        if (!isMyTurn) return; // ¼±ÅÃ ¾È ÇÑ ¿ªÇÒÀÌ¸é ¿òÁ÷ÀÌÁö ¾ÊÀ½
+        if (!isMyTurn) return;
 
-        float h = Input.GetAxis("Horizontal"); // A/D, ¡ç/¡æ
-        float v = Input.GetAxis("Vertical");   // W/S, ¡è/¡é
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
 
-        Vector3 move = new Vector3(h, 0, v) * speed * Time.deltaTime;
-        rb.MovePosition(transform.position + move);
+        Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
+        Vector2 newPos = rb.position + move;
+        
+
+        newPos.x = Mathf.Clamp(newPos.x, minX, maxX);
+        newPos.y = Mathf.Clamp(newPos.y, minY, maxY);
+
+        // ì´ë™
+        rb.MovePosition(newPos);
+
+        ani.SetFloat("DirX", h);
+        ani.SetFloat("DirY", v);
+
+        // ìœ„ì¹˜ ì„œë²„ì— ë³´ë‚´ê¸°
+        NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
+    }
+
+
+
+    // ==== ChaseGameì—ì„œ í˜¸ì¶œí•˜ëŠ” ì—­í•  ì„¸íŒ… í•¨ìˆ˜ ====
+    public void SetRole(GameRole newRole)
+    {
+        gameRole = newRole;
+        HasWon = false;
+    }
+
+    public void Win()
+    {
+        HasWon = true;
+    }
+
+
+    // ==== ê¸°ì¡´ í¬ì¸íŠ¸ ê²Œìž„ ì¶©ëŒ ì²˜ë¦¬ ====
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game1")
+        {
+            if (!collision.CompareTag("PointStar")) return;
+            if (!GameManager_game1.instance.isGameStart) return;
+
+            Destroy(collision.gameObject);
+
+            int roleIndex = role switch
+            {
+                "RoleA" => 0,
+                "RoleB" => 1,
+                _ => -1
+            };
+
+            if (roleIndex >= 0)
+                GameManager_game1.instance.AddPoint(roleIndex);
+
+        }
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game3")
+        {
+            if (gameRole == GameRole.Runner && collision.CompareTag("Light"))
+            {
+                Win();
+            }
+        }
+
+        if ((gameRole == GameRole.Chaser && collision.gameObject.CompareTag("Player")))
+        {
+            Win();
+        }
     }
 }

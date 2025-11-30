@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Scene : MonoBehaviour
 {
-  
     public void NewClick()
     {
         SceneManager.LoadScene("NewAccount");
@@ -11,6 +11,12 @@ public class Scene : MonoBehaviour
 
     public void Login()
     {
-        SceneManager.LoadScene("LogIn");
+        SceneManager.LoadScene("Story1");
     }
+
+    public void Skip()
+    {
+        SceneManager.LoadScene("Login");
+    }
+
 }

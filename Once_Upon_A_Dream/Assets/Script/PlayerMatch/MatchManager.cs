@@ -5,15 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class MatchManager : MonoBehaviour
 {
-    public string username; // 로그인 성공 시 저장된 유저명 넣기
     public GameObject button;
     public GameObject MatchFound;
 
     public void SendMatchRequest()
     {
-        string username = Player.Instance.username; // 클라이언트별 독립
         MatchRequest req = new MatchRequest();
-        req.username = username;
+        req.username = GameManager.Instance.username;   // 로그인된 유저명 사용
 
         string json = JsonUtility.ToJson(req);
         button.SetActive(false);
@@ -24,7 +22,7 @@ public class MatchManager : MonoBehaviour
     {
         bool matched = false;
 
-        while (!matched) // 매칭 완료될 때까지 반복
+        while (!matched)
         {
             UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/ready/", "POST");
             request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
@@ -43,8 +41,11 @@ public class MatchManager : MonoBehaviour
                     MatchFound.SetActive(true);
                     Debug.Log("매칭 완료! 방번호: " + res.room);
 
+                    // ★ GameManager에 저장
+                    GameManager.Instance.roomId = res.room;
+
                     yield return new WaitForSeconds(3f);
-                    SceneManager.LoadScene("Game3");  //원래는 Loading 들어가얗마!!
+                    SceneManager.LoadScene("Loading");
                 }
                 else
                 {
@@ -56,11 +57,9 @@ public class MatchManager : MonoBehaviour
                 Debug.Log("요청 실패: " + request.error);
             }
 
-            // 폴링 간격
             yield return new WaitForSeconds(1f);
         }
     }
-
 }
 
 [System.Serializable]
@@ -76,4 +75,3 @@ public class MatchResponse
     public string room;
     public string[] players;
 }
-

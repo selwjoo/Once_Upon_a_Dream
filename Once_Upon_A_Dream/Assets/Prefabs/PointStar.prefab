@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9220938042017034247}
   - component: {fileID: 6979887919681526483}
   - component: {fileID: 4451916600828768953}
+  - component: {fileID: 135000710460349398}
   m_Layer: 0
   m_Name: PointStar
   m_TagString: PointStar
@@ -28,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.36, y: 0.36, z: 0.36}
+  m_LocalScale: {x: 1.6200001, y: 1.6200001, z: 1.6200001}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -134,7 +135,29 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 0.5773587}
-      - {x: -0.5, y: -0.28866667}
-      - {x: 0.5, y: -0.28866667}
+    - - {x: -0.0027309489, y: 0.13221422}
+      - {x: -0.109474465, y: -0.083845586}
+      - {x: 0.112205386, y: -0.081114665}
   m_UseDelaunayMesh: 0
+--- !u!95 &135000710460349398
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6227227540422803580}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 713ad787bfe8af94887f060209893468, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
